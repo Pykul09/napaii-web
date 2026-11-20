@@ -13,10 +13,11 @@ import { TourHero } from './TourHero';
 
 const INCLUDED: MessageKey[] = ['detail.inc1', 'detail.inc2', 'detail.inc3', 'detail.inc4', 'detail.inc5'];
 const SEATS_NOTICE = 10;
+const todayIso = new Date().toISOString().slice(0, 10);
 
 /** หน้ารายละเอียดทัวร์ — เปิดจาก #/tours/:id */
 export function TourPage({ id }: { id: string }) {
-  const { t, lang, loc, dateRange, price } = useI18n();
+  const { t, lang, loc, dateRange, dateFull, price } = useI18n();
   const toast = useToast();
   const { user, openAuth } = useAuth();
   const saved = useSavedTours();
@@ -102,6 +103,8 @@ export function TourPage({ id }: { id: string }) {
     <>
       <TourHero tour={tour} />
       <main className="wrap evp">
+        {/* หัวเอกสารสำหรับ PDF (แสดงเฉพาะตอนพิมพ์) */}
+        <p className="print-brand">Napaii · napaii.com · {t('detail.printed', { date: dateFull(todayIso) })}</p>
         <div className="evp-grid">
           <article className="evp-main">
             <dl className="ev-facts">
@@ -216,6 +219,10 @@ export function TourPage({ id }: { id: string }) {
                   </div>
                 )}
               </div>
+              {/* PDF: เปิดหน้าต่างพิมพ์ → เลือก "บันทึกเป็น PDF" (ชื่อไฟล์ใช้ชื่อทัวร์จาก document.title) */}
+              <button type="button" className="btn ghost" onClick={() => window.print()}>
+                📄 {t('detail.pdf')}
+              </button>
             </div>
           </aside>
         </div>

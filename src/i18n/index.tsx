@@ -24,6 +24,8 @@ interface I18nValue {
   dateFull: (iso: string) => string;
   /** ช่วงวันที่ของทริป: "Dec 18 – 23, 2026" / "18–23 ธ.ค. 2569" */
   dateRange: (startIso: string, days: number) => string;
+  /** เดือน + ปี: "December 2026" / "ธันวาคม 2569" (รับ YYYY-MM-DD) */
+  monthYear: (iso: string) => string;
   month: (iso: string) => string;
   day: (iso: string) => string;
   /** 0 → "Free"/"ฟรี", อื่น ๆ → "฿890" */
@@ -65,6 +67,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
     const monthFmt = fmt(lang, { month: 'short' });
     const dayFmt = fmt(lang, { day: '2-digit' });
+    const monthYearFmt = fmt(lang, { month: 'long', year: 'numeric' });
     const fullFmt = fmt(lang, { year: 'numeric', month: 'short', day: 'numeric' });
     const at = (iso: string) => new Date(iso);
     return {
@@ -78,6 +81,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         end.setUTCDate(end.getUTCDate() + days - 1);
         return fullFmt.formatRange(at(iso), end);
       },
+      monthYear: (iso) => monthYearFmt.format(at(iso)),
       month: (iso) => monthFmt.format(at(iso)),
       day: (iso) => dayFmt.format(at(iso)),
       price: (baht) => (baht === 0 ? t('common.free') : `฿${baht.toLocaleString(LOCALES[lang])}`),

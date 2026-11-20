@@ -208,3 +208,71 @@ a.rm { text-decoration: none; display: inline-block; text-align: center; }
   .countries { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; margin-right: calc(-1 * clamp(18px, 4vw, 40px)); padding-right: 18px; scrollbar-width: none; }
   .countries::-webkit-scrollbar { display: none; }
 }
+
+/* พิมพ์ / บันทึกเป็น PDF (ปุ่ม "ดาวน์โหลด PDF" ในหน้าทัวร์) */
+.print-brand { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  :root, [data-theme='dark'] { --bg: #fff; --panel: #fff; --ink: #111; --mut: #666; --line: #d8d8dc; --soft: #f1f1f4; color-scheme: light; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: #fff; }
+  .top, footer, .boot, .toast, .sticky, .overlay, .ad, .evh-back, .evh-ctl, .evg, .evp-more, .ev-actions, .dep-list, .dep-h { display: none !important; }
+  .print-brand { display: block; margin: 0 0 10px; font-size: 11px; color: var(--mut); }
+  .evh { min-height: 0; height: 200px; border-radius: 14px; }
+  .evh-slide { transition: none; }
+  .evh-slide.on svg, .evh-slide.on img { animation: none; }
+  .evh-in { padding: 16px 20px; justify-content: flex-end; }
+  .evh-txt h1 { font-size: 28px; letter-spacing: -0.5px; margin: 8px 0 6px; }
+  .evh-txt p { font-size: 12px; }
+  .evp { padding-top: 14px; padding-bottom: 0; min-height: 0; animation: none; }
+  .evp-grid { grid-template-columns: 1fr; gap: 14px; }
+  .evp-side { position: static; order: -1; box-shadow: none; padding: 14px 16px; }
+  .ev-desc, .itn span { font-size: 12.5px; }
+  .itn li, .ev-facts > div, .evp-side { break-inside: avoid; }
+}
+
+/* ช่องค้นหา + เลือกเดือนที่เดินทาง */
+.tbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.tbar .q { margin-bottom: 0; flex: 1 1 260px; max-width: 360px; }
+.mq { display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); transition: box-shadow 0.2s; }
+.mq:focus-within { box-shadow: 0 0 0 4px var(--soft); }
+.mq select { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14px; padding: 12px 4px; outline: none; cursor: pointer; min-width: 150px; }
+.mq select:disabled { cursor: wait; opacity: 0.6; }
+@media (max-width: 560px) { .tbar .q, .mq { flex: 1 1 100%; max-width: none; } .mq select { flex: 1; } }
+
+/* Saved tours — ปุ่มบน navbar, ปุ่มหัวใจบนการ์ด, popup รายการ */
+.sv-btn { position: relative; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); color: var(--ink); display: grid; place-items: center; cursor: pointer; flex: none; transition: transform 0.2s, background 0.2s; }
+.sv-btn:hover { background: var(--soft); transform: scale(1.06); }
+.sv-btn svg { color: var(--danger); }
+.sv-count { position: absolute; top: -5px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px; background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; line-height: 18px; text-align: center; border: 2px solid var(--panel); box-sizing: content-box; }
+
+.card-w { position: relative; }
+.sv-fab { position: absolute; right: 12px; top: 144px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, 0.88); color: #1d1d1f; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); animation: up 0.7s calc(var(--d, 0) * 0.08s) cubic-bezier(0.2, 0.8, 0.2, 1) both; opacity: 0; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.2s; }
+.card-w:hover .sv-fab { transform: translateY(-6px); }
+.sv-fab:hover { color: var(--danger); }
+.sv-fab:active { transform: scale(0.9); }
+.sv-fab.on { color: var(--danger); }
+.sv-fab:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.sv-dlg { width: min(520px, 100%); }
+.sv-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sv-item { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 16px; padding: 6px 6px 6px 6px; background: var(--panel); transition: background 0.2s; }
+.sv-item:not(.expired):hover { background: var(--soft); }
+.sv-link { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; border-radius: 12px; }
+.sv-thumb { position: relative; flex: none; width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, var(--a, var(--soft)), var(--b, var(--line))); }
+.sv-thumb svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sv-body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sv-body b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv-meta { font-size: 12px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv-meta strong { color: var(--ink); font-weight: 600; }
+.sv-badge { font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; background: var(--soft); color: var(--mut); padding: 2px 8px; border-radius: 99px; }
+.sv-rm { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 0; background: transparent; color: var(--mut); display: grid; place-items: center; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.sv-rm:hover { background: var(--soft); color: var(--danger); }
+.sv-item.expired { background: var(--soft); border-style: dashed; }
+.sv-item.expired .sv-link { cursor: not-allowed; opacity: 0.55; filter: grayscale(1); }
+.sv-clear { margin-top: 14px; }
+.sv-empty { text-align: center; padding: 18px 0 6px; color: var(--mut); font-size: 14px; }
+.sv-empty p { margin: 0 0 14px; }
+.sv-item.sk .sv-thumb, .sv-item.sk i { background: linear-gradient(100deg, var(--soft) 30%, var(--panel) 50%, var(--soft) 70%) 0 0 / 300% 100%; animation: shimmer 1.3s linear infinite; }
+.sv-item.sk i { display: block; height: 12px; border-radius: 6px; }
+.sv-item.sk .sv-body { flex: 1; gap: 8px; }

@@ -9,11 +9,14 @@ import { TourCard, TourSkeleton } from './TourCard';
 
 type CountryFilter = 'all' | CountryCode;
 
+const monthOf = (date: string): string => date.slice(0, 7);
+
 export function FeaturedTours() {
-  const { t, loc } = useI18n();
+  const { t, loc, monthYear } = useI18n();
   const [tours, setTours] = useState<TourItem[] | null>(null);
   const [query, setQuery] = useState('');
   const [country, setCountry] = useState<CountryFilter>('all');
+  const [month, setMonth] = useState(''); // '' = ทุกเดือน, ไม่งั้นเป็น YYYY-MM
 
   useEffect(() => {
     let alive = true;
@@ -26,22 +29,38 @@ export function FeaturedTours() {
   const next = () => setTours((ts) => (ts && ts.length ? [...ts.slice(1), ts[0]] : ts));
   const prev = () => setTours((ts) => (ts && ts.length ? [ts[ts.length - 1], ...ts.slice(0, -1)] : ts));
 
-  // จำนวนทัวร์ของแต่ละประเทศ (แสดงเป็นตัวเลขบนปุ่ม)
+  // เดือนที่มีทัวร์ออกเดินทาง (ใช้เป็นตัวเลือกในช่องเลือกเดือน)
+  const months = useMemo(() => [...new Set((tours ?? []).flatMap((x) => x.departures.map(monthOf)))].sort(), [tours]);
+
+  const inMonth = (x: TourItem, m: string): boolean => !m || x.departures.some((d) => monthOf(d) === m);
+
+  // จำนวนทัวร์ของแต่ละประเทศ ในเดือนที่เลือก (แสดงเป็นตัวเลขบนปุ่ม)
   const counts = useMemo(() => {
     const m = new Map<CountryCode, number>();
-    (tours ?? []).forEach((x) => m.set(x.country, (m.get(x.country) ?? 0) + 1));
+    (tours ?? []).filter((x) => inMonth(x, month)).forEach((x) => m.set(x.country, (m.get(x.country) ?? 0) + 1));
     return m;
-  }, [tours]);
+  }, [tours, month]);
 
-  // ค้นหาได้ทั้งไทยและอังกฤษ ไม่ว่าหน้าเว็บจะแสดงภาษาไหนอยู่ และใช้ร่วมกับตัวกรองประเทศ
+  // เลือกเดือนแล้วแสดงเฉพาะประเทศที่มีทัวร์ในเดือนนั้น
+  const countryChips = COUNTRIES.filter((c) => !month || (counts.get(c.code) ?? 0) > 0);
+  const monthTotal = [...counts.values()].reduce((a, n) => a + n, 0);
+
+  const onMonthChange = (next: string) => {
+    setMonth(next);
+    // ประเทศที่เลือกไว้ไม่มีทัวร์ในเดือนใหม่ → กลับไปทุกประเทศ
+    if (country !== 'all' && !(tours ?? []).some((x) => x.country === country && inMonth(x, next))) setCountry('all');
+  };
+
+  // ค้นหาได้ทั้งไทยและอังกฤษ ไม่ว่าหน้าเว็บจะแสดงภาษาไหนอยู่ และใช้ร่วมกับตัวกรองประเทศ + เดือน
   const visible = useMemo(() => {
     const q = query.toLowerCase().trim();
     return (tours ?? []).filter((x) => {
       if (country !== 'all' && x.country !== country) return false;
+      if (!inMonth(x, month)) return false;
       const c = findCountry(x.country);
       return [x.title.en, x.title.th, x.route.en, x.route.th, c.name.en, c.name.th, x.keywords, x.category].join(' ').toLowerCase().includes(q);
     });
-  }, [tours, query, country]);
+  }, [tours, query, country, month]);
 
   return (
     <>
@@ -65,22 +84,36 @@ export function FeaturedTours() {
         </div>
       </Reveal>
 
-      <input
-        id="tour-search"
-        className="q"
-        aria-label={t('featured.searchLabel')}
-        placeholder={t('featured.searchPlaceholder')}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <div className="tbar">
+        <input
+          id="tour-search"
+          className="q"
+          aria-label={t('featured.searchLabel')}
+          placeholder={t('featured.searchPlaceholder')}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+       
+        <label className="mq">
+          <span aria-hidden="true">📅</span>
+          <select aria-label={t('featured.monthLabel')} value={month} disabled={!tours} onChange={(e) => onMonthChange(e.target.value)}>
+            <option value="">{t('featured.anyMonth')}</option>
+            {months.map((m) => (
+              <option key={m} value={m}>
+                {monthYear(`${m}-01`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
 
-      {/* ตัวกรองประเทศ: กดเลือกประเทศแล้วแสดงเฉพาะทัวร์ของประเทศนั้น */}
+  
       <div className="chips countries" role="group" aria-label={t('featured.countries')}>
         <button type="button" className={`chip${country === 'all' ? ' on' : ''}`} aria-pressed={country === 'all'} onClick={() => setCountry('all')}>
           🌏 {t('country.all')}
-          {tours && <i>{tours.length}</i>}
+          {tours && <i>{month ? monthTotal : tours.length}</i>}
         </button>
-        {COUNTRIES.map((c) => (
+        {countryChips.map((c) => (
           <button
             key={c.code}
             type="button"
@@ -96,8 +129,13 @@ export function FeaturedTours() {
 
       {tours && (
         <p className="rescount" aria-live="polite">
-          {t('featured.count', { n: visible.length })}
-          {country !== 'all' && ` · ${findCountry(country).flag} ${loc(findCountry(country).name)}`}
+          {[
+            t(visible.length === 1 ? 'featured.countOne' : 'featured.count', { n: visible.length }),
+            month && `📅 ${monthYear(`${month}-01`)}`,
+            country !== 'all' && `${findCountry(country).flag} ${loc(findCountry(country).name)}`,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </p>
       )}
 
@@ -107,7 +145,7 @@ export function FeaturedTours() {
         ) : visible.length ? (
           <>
             {visible.map((x, i) => (
-              <TourCard key={x.id} tour={x} index={i} />
+              <TourCard key={x.id} tour={x} index={i} departure={month ? x.departures.find((d) => monthOf(d) === month) : undefined} />
             ))}
             <AdNativeCard index={visible.length} />
           </>

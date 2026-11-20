@@ -30,3 +30,9 @@ export async function fetchArticles(): Promise<Article[]> {
   await sleep(300);
   return ARTICLES;
 }
+
+/** ดึงทัวร์หลายรายการตาม id (ใช้กับรายการที่บันทึกไว้) — id ที่ไม่พบจะไม่ถูกคืนมา */
+export async function fetchToursByIds(ids: string[]): Promise<TourItem[]> {
+  await sleep(150);
+  return TOURS.filter((t) => ids.includes(t.id));
+}

@@ -3,6 +3,7 @@ import { useI18n } from '../i18n';
 import type { ThemeMode } from '../types';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ProfileMenu } from './ProfileMenu';
+import { SavedTours } from './SavedTours';
 import { ThemeToggle } from './ThemeToggle';
 
 interface Props {
@@ -27,6 +28,7 @@ export function Navbar({ theme, onThemeChange }: Props) {
       </nav>
       <LanguageSwitcher />
       <ThemeToggle theme={theme} onChange={onThemeChange} />
+      <SavedTours />
       {user ? (
         <ProfileMenu />
       ) : (

@@ -1,6 +1,6 @@
 # Napaii — Tours & Travel Packages
 
-เว็บไซต์: **https://napaigun.com**
+เว็บไซต์: **https://napaii.com**
 
 เว็บขายทัวร์ท่องเที่ยว โทนเทาสไตล์ Apple รองรับ **ภาษาไทย / English**, ธีมสว่าง/มืด, loading, animation, พื้นที่โฆษณา, Upcoming Events, Articles และระบบ login (Apple / Google / Facebook / อีเมล)
 
@@ -82,7 +82,7 @@ src/
   - Google: Google Cloud Console → OAuth consent screen + credentials
   - Facebook: Meta for Developers → Facebook Login
   - Apple: Apple Developer → Sign in with Apple
-  - ตั้ง redirect URI เป็นโดเมน `https://napaigun.com/...`
+  - ตั้ง redirect URI เป็นโดเมน `https://napaii.com/...`
 - หรือใช้บริการสำเร็จรูป เช่น Firebase Auth, Supabase Auth, Auth0, Clerk
 - ใช้ session ผ่าน httpOnly cookie แทนการเก็บรหัสผ่านหรือ token ใน localStorage
 
@@ -95,9 +95,9 @@ src/
 ### 4) รูปภาพ
 โปสเตอร์เป็นลาย SVG ใน `components/Poster.tsx` เปลี่ยนเป็น `<img src>` รูปจริงได้ในจุดเดียว
 
-### 5) ขึ้นโดเมน napaigun.com
+### 5) ขึ้นโดเมน napaii.com
 - `npm run build` แล้วนำโฟลเดอร์ `dist/` ไปวางบนบริการโฮสต์ static เช่น Vercel, Netlify, Cloudflare Pages แล้วผูกโดเมน
-- `index.html` ตั้ง canonical เป็น `https://napaigun.com/` แล้ว
+- `index.html` ตั้ง canonical เป็น `https://napaii.com/` แล้ว
 - ถ้าต้องการให้ Google จัดทำดัชนีแยกตามภาษา ควรทำ URL แยก (เช่น `/th`, `/en`) ด้วย React Router และ `hreflang` ในขั้นถัดไป
 
 ## ไอเดียต่อยอด

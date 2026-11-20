@@ -7,8 +7,8 @@ export function Footer() {
       <span>{t('footer.copy')}</span>
       <span>
         {t('footer.about')} · {t('footer.help')} · {t('footer.privacy')} ·{' '}
-        <a href="https://napaigun.com" className="footlink">
-          napaigun.com
+        <a href="https://napaii.com" className="footlink">
+        napaii.com
         </a>
       </span>
     </footer>
