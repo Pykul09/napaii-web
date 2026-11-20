@@ -1,0 +1,33 @@
+/* Design tokens — แก้สี/ธีมทั้งเว็บที่นี่ที่เดียว (สลับด้วย data-theme บน <html>) */
+:root {
+  --bg: #f5f5f7;
+  --panel: #fff;
+  --ink: #1d1d1f;
+  --mut: #86868b;
+  --line: #d2d2d7;
+  --nav: rgba(251, 251, 253, 0.78);
+  --soft: #ececf0;
+  --btn: #1d1d1f;
+  --btnt: #fff;
+  --o1: #d6d6dc;
+  --o2: #c2c2ca;
+  --o3: #e4e4ea;
+  --danger: #d0453b;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #0b0b0c;
+  --panel: #1c1c1e;
+  --ink: #f5f5f7;
+  --mut: #98989f;
+  --line: #2c2c2e;
+  --nav: rgba(22, 22, 24, 0.72);
+  --soft: #2a2a2d;
+  --btn: #f5f5f7;
+  --btnt: #1d1d1f;
+  --o1: #2c2c30;
+  --o2: #3a3a40;
+  --o3: #232326;
+  color-scheme: dark;
+}

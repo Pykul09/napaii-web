@@ -1,0 +1,97 @@
+import { useEffect, useState } from 'react';
+import { findCountry } from '../data/tours';
+import { useI18n } from '../i18n';
+import type { TourItem } from '../types';
+import { Poster, toneStyle } from './Poster';
+
+interface Slide {
+  src?: string;
+  variant: number;
+}
+
+const AUTOPLAY_MS = 5500;
+const POSTER_STYLES = 5;
+
+/** รูปของทัวร์: ใช้ images จริงถ้ามี ไม่งั้นสร้างลายโปสเตอร์ 4 แบบจาก variant */
+export function tourSlides(tour: TourItem): Slide[] {
+  if (tour.images?.length) return tour.images.slice(0, 4).map((src) => ({ src, variant: tour.variant }));
+  return Array.from({ length: 4 }, (_, i) => ({ variant: (tour.variant + i) % POSTER_STYLES }));
+}
+
+function SlideArt({ slide }: { slide: Slide }) {
+  return slide.src ? <img src={slide.src} alt="" /> : <Poster variant={slide.variant} />;
+}
+
+/** Hero เต็มความกว้าง: รูปพื้นหลังใหญ่สไลด์อัตโนมัติ + ชื่อทัวร์/ประเทศ/เส้นทางซ้อนทับ + แถบรูปย่อ */
+export function TourHero({ tour }: { tour: TourItem }) {
+  const { t, loc } = useI18n();
+  const country = findCountry(tour.country);
+  const slides = tourSlides(tour);
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  // เลื่อนรูปอัตโนมัติ (หยุดเมื่อเมาส์อยู่บน hero หรือผู้ใช้ตั้งค่าลดการเคลื่อนไหว)
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (paused || reduce || slides.length < 2) return;
+    const timer = window.setTimeout(() => setIdx((i) => (i + 1) % slides.length), AUTOPLAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [idx, paused, slides.length]);
+
+  const go = (n: number) => setIdx((n + slides.length) % slides.length);
+
+  return (
+    <>
+      <section className="evh" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} aria-roledescription="carousel" aria-label={t('detail.photos')}>
+        {slides.map((s, i) => (
+          <div className={`evh-slide${i === idx ? ' on' : ''}`} style={s.src ? undefined : toneStyle(s.variant)} aria-hidden={i !== idx} key={i}>
+            <SlideArt slide={s} />
+          </div>
+        ))}
+        <div className="evh-shade" />
+
+        <div className="evh-in">
+          <a className="evh-back" href="#featured">
+            ← {t('detail.back')}
+          </a>
+          <div className="evh-txt">
+            <span className="tag tag-inline">{t(`cat.${tour.category}`)}</span>
+            <h1>{loc(tour.title)}</h1>
+            <p>
+              {country.flag} {loc(country.name)} · {loc(tour.route)} · {t('tour.daysNights', { d: tour.days, n: tour.days - 1 })}
+            </p>
+          </div>
+        </div>
+
+        {slides.length > 1 && (
+          <div className="evh-ctl">
+            <button type="button" className="ar" aria-label={t('detail.prevPhoto')} onClick={() => go(idx - 1)}>
+              ‹
+            </button>
+            <button type="button" className="ar" aria-label={t('detail.nextPhoto')} onClick={() => go(idx + 1)}>
+              ›
+            </button>
+          </div>
+        )}
+      </section>
+
+      {slides.length > 1 && (
+        <div className="wrap evg" role="group" aria-label={t('detail.photos')}>
+          {slides.map((s, i) => (
+            <button
+              type="button"
+              className={`evg-t${i === idx ? ' on' : ''}`}
+              style={s.src ? undefined : toneStyle(s.variant)}
+              aria-label={t('detail.photoOf', { n: i + 1, m: slides.length })}
+              aria-current={i === idx}
+              onClick={() => setIdx(i)}
+              key={i}
+            >
+              <SlideArt slide={s} />
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
