@@ -219,6 +219,26 @@ export const en = {
   'detail.book': 'Book this tour',
   'detail.bookSoon': 'Tour booking is coming soon',
   'detail.signInToBook': 'Sign in to book a tour',
+
+  'detail.pdf': 'Download PDF',
+  'detail.printed': 'Printed {date}',
+  'featured.monthLabel': 'Departure month',
+  'featured.anyMonth': 'Any month',
+  'featured.countOne': '{n} Tour',
+
+  'saved.open': 'Saved tours',
+  'saved.title': 'Saved tours',
+  'saved.sub': 'Tours you bookmarked. Expired trips are greyed out.',
+  'saved.empty': 'No saved tours yet. Tap ♡ on any tour to save it here.',
+  'saved.remove': 'Remove',
+  'saved.removeAria': 'Remove {name} from saved tours',
+  'saved.expired': 'Expired',
+  'saved.unavailable': 'This tour is no longer available',
+  'saved.next': 'Next departure: {date}',
+  'saved.clearExpired': 'Clear expired ({n})',
+  'saved.browse': 'Browse tours',
+  'saved.saveAria': 'Save {name}',
+  'saved.unsaveAria': 'Remove {name} from saved',
 };
 
 export type Messages = typeof en;

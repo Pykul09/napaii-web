@@ -15,7 +15,7 @@ export const lastDay = (departure: string, days: number): string => addDays(depa
 function fields(tour: TourItem, departure: string, lang: Lang) {
   return {
     title: `✈ ${tour.title[lang]}`,
-    details: `${tour.description[lang]}\n\n${tour.route[lang]}\nhttps://napaigun.com`,
+    details: `${tour.description[lang]}\n\n${tour.route[lang]}\nhttps://napaii.com`,
     // ปฏิทินแบบทั้งวัน: วันสิ้นสุดต้องเป็นวันถัดไป (exclusive)
     start: ymd(departure),
     end: ymd(addDays(departure, tour.days)),
@@ -41,7 +41,7 @@ export function buildIcs(tour: TourItem, departure: string, lang: Lang): string 
     'PRODID:-//napaii//tours//EN',
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
-    `UID:${tour.id}-${f.start}@napaigun.com`,
+    `UID:${tour.id}-${f.start}@napaii.com`,
     `DTSTAMP:${stamp}`,
     `DTSTART;VALUE=DATE:${f.start}`,
     `DTEND;VALUE=DATE:${f.end}`,
@@ -65,3 +65,12 @@ export function downloadIcs(tour: TourItem, departure: string, lang: Lang): void
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+/** วันนี้ตามเวลาไทย (YYYY-MM-DD) */
+export const todayBangkok = (): string => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+
+/** รอบเดินทางถัดไปที่ยังไม่ผ่าน — null ถ้าทุกรอบผ่านไปแล้ว (ทัวร์หมดเวลา) */
+export const nextDeparture = (tour: TourItem, today = todayBangkok()): string | null =>
+  [...tour.departures].sort().find((d) => d >= today) ?? null;
+
+export const isTourExpired = (tour: TourItem, today = todayBangkok()): boolean => nextDeparture(tour, today) === null;
