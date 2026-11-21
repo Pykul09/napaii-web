@@ -5,6 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { findCountry } from '../data/tours';
 import { useSavedTours } from '../hooks/useSavedTours';
 import { rememberHomeScroll, tourHref } from '../hooks/useTourRoute';
+import { tourPriceText } from '../utils/format';
 import { useI18n } from '../i18n';
 import { fetchToursByIds } from '../services/tours';
 import type { TourItem } from '../types';
@@ -149,7 +150,7 @@ export function SavedTours() {
                           ) : (
                             <>
                               {t('saved.next', { date: dateFull(next) })}
-                              {tour && <strong> · {price(tour.price)}</strong>}
+                              {tour && <strong> · {tourPriceText(tour, price)}</strong>}
                             </>
                           )}
                         </span>

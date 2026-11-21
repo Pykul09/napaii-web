@@ -13,6 +13,12 @@
   --o2: #c2c2ca;
   --o3: #e4e4ea;
   --danger: #d0453b;
+  --day-bg: #fff1d6;
+  --day-fg: #b45309;
+  --dep-bg: #e8f0ff;
+  --dep-fg: #1d4ed8;
+  --route-bg: #e6f6ec;
+  --route-fg: #15803d;
   color-scheme: light;
 }
 
@@ -29,5 +35,11 @@
   --o1: #2c2c30;
   --o2: #3a3a40;
   --o3: #232326;
+  --day-bg: rgba(245, 158, 11, 0.16);
+  --day-fg: #fbbf24;
+  --dep-bg: rgba(59, 130, 246, 0.16);
+  --dep-fg: #93c5fd;
+  --route-bg: rgba(34, 197, 94, 0.14);
+  --route-fg: #86efac;
   color-scheme: dark;
 }

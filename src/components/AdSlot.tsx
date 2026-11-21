@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { cssVars } from '../utils/format';
 import { Reveal } from './Reveal';
@@ -35,6 +34,25 @@ export function AdBanner() {
   );
 }
 
+/** พื้นที่โฆษณา 2 คอลัมน์ (ใต้ส่วนบทความ) — แต่ละช่องขนาดมาตรฐาน 300 × 250 ขยายเต็มคอลัมน์ */
+export function AdDouble() {
+  const { t } = useI18n();
+  return (
+    <Reveal as="div" className="ad2">
+      {(['ad-double-left-300x250', 'ad-double-right-300x250'] as const).map((slot, i) => (
+        <aside key={slot} className={`ad ad2-slot ad2-${i + 1}`} data-ad-slot={slot}>
+          <span className="adl">{t('ad.advertisement')}</span>
+          <b>{t(i === 0 ? 'ad.double.title1' : 'ad.double.title2')}</b>
+          <span>{t('ad.double.sub')}</span>
+          <button type="button" className="btn sm">
+            {t('ad.leader.cta')}
+          </button>
+        </aside>
+      ))}
+    </Reveal>
+  );
+}
+
 /** โฆษณาแบบ native ที่หน้าตาเหมือนการ์ดกิจกรรม */
 export function AdNativeCard({ index }: { index: number }) {
   const { t } = useI18n();
@@ -48,30 +66,6 @@ export function AdNativeCard({ index }: { index: number }) {
       <button type="button" className="btn">
         {t('ad.native.cta')}
       </button>
-    </aside>
-  );
-}
-
-/** กล่องโฆษณาลอยมุมขวาล่าง โผล่หลัง 6 วินาที ปิดได้ */
-export function StickyAd() {
-  const { t } = useI18n();
-  const [show, setShow] = useState(false);
-  const [closed, setClosed] = useState(false);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setShow(true), 6000);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  if (closed) return null;
-  return (
-    <aside className={`sticky${show ? ' show' : ''}`} data-ad-slot="sticky-300x100">
-      <button type="button" className="x" aria-label={t('ad.close')} onClick={() => setClosed(true)}>
-        ×
-      </button>
-      <span className="adl">{t('ad.advertisement')}</span>
-      <b>{t('ad.sticky.title')}</b>
-      <span>{t('ad.sticky.sub')}</span>
     </aside>
   );
 }

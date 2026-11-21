@@ -1,25 +1,39 @@
 import { useEffect, useState } from 'react';
 import { findCountry } from '../data/tours';
 import { useI18n } from '../i18n';
-import type { TourItem } from '../types';
+import type { TourItem, TourPhoto } from '../types';
 import { Poster, toneStyle } from './Poster';
 
 interface Slide {
   src?: string;
+  /** รูปย่อสำหรับแถบ thumbnail (เล็กกว่า src) */
+  thumb?: string;
+  credit?: string;
   variant: number;
 }
+
+/** รูปย่อ 960px จาก URL thumbnail ของ Wikimedia (รูปอื่นคืนค่าเดิม) */
+const smaller = (url: string): string => url.replace(/\/\d+px-/, '/960px-');
 
 const AUTOPLAY_MS = 5500;
 const POSTER_STYLES = 5;
 
-/** รูปของทัวร์: ใช้ images จริงถ้ามี ไม่งั้นสร้างลายโปสเตอร์ 4 แบบจาก variant */
+/** รูปของทัวร์: cover + gallery (รูปจริง) → images → ลายโปสเตอร์ 4 แบบจาก variant */
 export function tourSlides(tour: TourItem): Slide[] {
+  const photos = [tour.cover, ...(tour.gallery ?? [])].filter((p): p is TourPhoto => !!p);
+  if (photos.length) {
+    return photos.slice(0, 4).map((p) => {
+      const src = p.large ?? p.src;
+      return { src, thumb: smaller(src), credit: `© ${p.author} · ${p.license}`, variant: tour.variant };
+    });
+  }
   if (tour.images?.length) return tour.images.slice(0, 4).map((src) => ({ src, variant: tour.variant }));
   return Array.from({ length: 4 }, (_, i) => ({ variant: (tour.variant + i) % POSTER_STYLES }));
 }
 
-function SlideArt({ slide }: { slide: Slide }) {
-  return slide.src ? <img src={slide.src} alt="" /> : <Poster variant={slide.variant} />;
+function SlideArt({ slide, thumb = false }: { slide: Slide; thumb?: boolean }) {
+  const src = thumb ? (slide.thumb ?? slide.src) : slide.src;
+  return src ? <img src={src} alt="" title={slide.credit} loading={thumb ? 'lazy' : undefined} decoding="async" /> : <Poster variant={slide.variant} />;
 }
 
 /** Hero เต็มความกว้าง: รูปพื้นหลังใหญ่สไลด์อัตโนมัติ + ชื่อทัวร์/ประเทศ/เส้นทางซ้อนทับ + แถบรูปย่อ */
@@ -55,7 +69,7 @@ export function TourHero({ tour }: { tour: TourItem }) {
             ← {t('detail.back')}
           </a>
           <div className="evh-txt">
-            <span className="tag tag-inline">{t(`cat.${tour.category}`)}</span>
+            <span className={`tag tag-inline cat-${tour.category}`}>{t(`cat.${tour.category}`)}</span>
             <h1>{loc(tour.title)}</h1>
             <p>
               {country.flag} {loc(country.name)} · {loc(tour.route)} · {t('tour.daysNights', { d: tour.days, n: tour.days - 1 })}
@@ -87,7 +101,7 @@ export function TourHero({ tour }: { tour: TourItem }) {
               onClick={() => setIdx(i)}
               key={i}
             >
-              <SlideArt slide={s} />
+              <SlideArt slide={s} thumb />
             </button>
           ))}
         </div>

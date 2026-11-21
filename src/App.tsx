@@ -1,13 +1,15 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Articles } from './components/Articles';
-import { AdBanner, AdLeaderboard, StickyAd } from './components/AdSlot';
+import { AdBanner, AdDouble, AdLeaderboard } from './components/AdSlot';
 import { AuthModal } from './components/AuthModal';
 import { BootLoader } from './components/BootLoader';
 import { CommunityCta } from './components/CommunityCta';
+import { ContactFab } from './components/ContactFab';
 import { FeaturedTours } from './components/FeaturedTours';
 import { Footer } from './components/Footer';
 import { Hero } from './components/Hero';
 import { Navbar } from './components/Navbar';
+import { RouteLoader } from './components/RouteLoader';
 import { TourPage } from './components/TourPage';
 import { UpcomingDepartures } from './components/UpcomingDepartures';
 import { AuthProvider } from './context/AuthContext';
@@ -40,6 +42,8 @@ export default function App() {
         <AuthProvider>
           <div className={`app${ready ? ' ready' : ''}`}>
             <BootLoader onDone={() => setReady(true)} />
+            {/* loading ทุกครั้งที่เปลี่ยนหน้า (หน้าแรก ↔ หน้าทัวร์ / ทัวร์ → ทัวร์) */}
+            <RouteLoader routeKey={tourId ?? 'home'} />
             <Navbar theme={theme} onThemeChange={setTheme} />
             {/* หน้าแรกคงไว้ใน DOM (แค่ซ่อน) เพื่อให้กลับมาแล้วคำค้นหา/ตำแหน่งเลื่อนยังอยู่ ไม่ต้องโหลดใหม่ */}
             <div hidden={tourId !== null}>
@@ -47,15 +51,17 @@ export default function App() {
               <main className="wrap" id="featured">
                 <AdLeaderboard />
                 <FeaturedTours />
+                <CommunityCta />
                 <UpcomingDepartures />
                 <AdBanner />
                 <Articles />
-                <CommunityCta />
+                <AdDouble />
               </main>
             </div>
             {tourId !== null && <TourPage key={tourId} id={tourId} />}
             <Footer />
-            <StickyAd />
+            {/* ปุ่มติดต่อลอยมุมขวาล่าง (LINE QR + Call Center) — แทนโฆษณาลอยเดิม */}
+            <ContactFab />
             <AuthModal />
           </div>
         </AuthProvider>

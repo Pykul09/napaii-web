@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { findCountry } from '../data/tours';
+import { useReportLoading } from '../hooks/usePageLoading';
 import { useSavedTours } from '../hooks/useSavedTours';
 import { useI18n, type MessageKey } from '../i18n';
 import { fetchFeaturedTours, fetchTourById } from '../services/tours';
 import type { TourItem } from '../types';
-import { avatarStyle, isOverflowBadge } from '../utils/avatar';
-import { downloadIcs, googleCalendarUrl } from '../utils/calendar';
-import { TourCard } from './TourCard';
+import { downloadIcs, googleCalendarUrl, isComingSoon, isSoldOut } from '../utils/calendar';
+import { tourPriceText } from '../utils/format';
+import { Countdown } from './Countdown';
+import { BookingDrawer } from './BookingDrawer';
+import { PdfPreview } from './PdfPreview';
+import { PriceTag, TourCard } from './TourCard';
 import { TourHero } from './TourHero';
 
 const INCLUDED: MessageKey[] = ['detail.inc1', 'detail.inc2', 'detail.inc3', 'detail.inc4', 'detail.inc5'];
@@ -25,11 +29,19 @@ export function TourPage({ id }: { id: string }) {
   const [others, setOthers] = useState<TourItem[]>([]);
   const [departure, setDeparture] = useState('');
   const [calOpen, setCalOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
+  const [bookOpen, setBookOpen] = useState(false);
+  const closeBook = useCallback(() => setBookOpen(false), []);
+  // บอก RouteLoader ว่ายังโหลดข้อมูลทัวร์อยู่ → ค้างหน้าจอ loading ไว้จนเสร็จ
+  useReportLoading(tour === undefined);
+  const closePdf = useCallback(() => setPdfOpen(false), []);
 
   useEffect(() => {
     let alive = true;
     setTour(undefined);
     setCalOpen(false);
+    setPdfOpen(false);
+    setBookOpen(false);
     fetchTourById(id).then((x) => {
       if (!alive) return;
       setTour(x);
@@ -78,6 +90,7 @@ export function TourPage({ id }: { id: string }) {
   }
 
   const country = findCountry(tour.country);
+  const soon = isComingSoon(tour);
   const isSaved = saved.has(tour.id);
 
   const onSave = () => {
@@ -89,15 +102,8 @@ export function TourPage({ id }: { id: string }) {
     toast(t(saved.toggle(tour.id) ? 'detail.saved' : 'detail.unsaved'));
   };
 
-  const onBook = () => {
-    if (!user) {
-      toast(t('detail.signInToBook'));
-      openAuth('signin');
-      return;
-    }
-    // TODO: ต่อหน้าจอง/ชำระเงิน (ส่ง tour.id + departure และใช้ข้อมูล user.profile ที่เก็บไว้ตอนสมัคร)
-    toast(t('detail.bookSoon'));
-  };
+  // ปุ่มจอง: เปิดแผงด้านข้างให้เลือก จองทาง LINE หรือ โทร Call Center
+  const onBook = () => setBookOpen(true);
 
   return (
     <>
@@ -108,15 +114,17 @@ export function TourPage({ id }: { id: string }) {
         <div className="evp-grid">
           <article className="evp-main">
             <dl className="ev-facts">
-              <div>
-                <dt>{t('detail.departure')}</dt>
+              <div className="fact-dep">
+                <dt>📅 {t('detail.departure')}</dt>
                 <dd>
                   {dateRange(departure, tour.days)}
-                  <small>{t('tour.daysNights', { d: tour.days, n: tour.days - 1 })}</small>
+                  <span className="dn" aria-label={t('tour.daysNights', { d: tour.days, n: tour.days - 1 })}>
+                    ☀ {t('tour.days', { d: tour.days })} · ☾ {t('tour.nights', { n: tour.days - 1 })}
+                  </span>
                 </dd>
               </div>
-              <div>
-                <dt>{t('detail.route')}</dt>
+              <div className="fact-route">
+                <dt>⌖ {t('detail.route')}</dt>
                 <dd>
                   {loc(tour.route)}
                   <small>
@@ -152,26 +160,32 @@ export function TourPage({ id }: { id: string }) {
             </ul>
             <p className="ev-free">{t('detail.incNote')}</p>
 
-            <div className="att ev-att">
-              {tour.attendees.map((a) => {
-                const more = isOverflowBadge(a);
-                return (
-                  <span className={more ? 'mi more' : 'mi'} style={more ? undefined : avatarStyle(a)} key={a}>
-                    {a}
-                  </span>
-                );
-              })}
-              <span className="go">{t('tour.booked', { n: tour.booked })}</span>
-            </div>
           </article>
 
           <aside className="evp-side">
-            <div className="ev-price">
-              <span>{t('detail.price')}</span>
-              <strong>{price(tour.price)}</strong>
+            <div className="ev-code">
+              <span>{t('tour.code')}</span>
+              <b>{tour.code}</b>
             </div>
-            <p className="ev-free">{t('detail.perPerson')}</p>
-            {tour.seatsLeft <= SEATS_NOTICE && <p className="seat-note">{t('tour.seats', { n: tour.seatsLeft })}</p>}
+            <div className={`ev-price${soon ? ' rp-soon' : ''}`}>
+              <span>{t(soon ? 'upcoming.priceSoon' : 'detail.price')}</span>
+              <strong>
+                <PriceTag text={tourPriceText(tour, price)} />
+              </strong>
+            </div>
+            <div className="ev-sub">
+              <p className="ev-free">{t('detail.perPerson')}</p>
+              {soon ? (
+                <p className="seat-note soon-note">🔔 {t('soon.badge')}</p>
+              ) : isSoldOut(tour) ? (
+                <p className="seat-note">{t('tour.soldOutNote')}</p>
+              ) : (
+                tour.seatsLeft <= SEATS_NOTICE && <p className="seat-note">{t('tour.seats', { n: tour.seatsLeft })}</p>
+              )}
+            </div>
+
+            {soon && <p className="soon-info">{t('soon.info')}</p>}
+            {!soon && !isSoldOut(tour) && departure && <Countdown departure={departure} className="cd-detail" />}
 
             <h3 className="dep-h">{t('detail.pickDate')}</h3>
             <div className="dep-list" role="group" aria-label={t('detail.pickDate')}>
@@ -183,9 +197,22 @@ export function TourPage({ id }: { id: string }) {
             </div>
 
             <div className="ev-actions">
-              <button type="button" className="btn ev-buy" onClick={onBook}>
-                {t('detail.book')}
-              </button>
+              {soon ? (
+                // ทัวร์ที่กำลังจะเปิดขาย: ยังจองไม่ได้ → ให้ลูกค้าฝากติดตาม (เปิดแผง LINE / Call Center)
+                <button type="button" className="btn ev-buy ev-notify" onClick={onBook} aria-haspopup="dialog">
+                  🔔 {t('soon.notify')}
+                </button>
+              ) : (
+                <button type="button" className="btn ev-buy ev-book" onClick={onBook} aria-haspopup="dialog" disabled={isSoldOut(tour)}>
+                  {isSoldOut(tour) ? (
+                    t('tour.soldOut')
+                  ) : (
+                    <>
+                      <span aria-hidden="true">✈</span> {t('detail.bookNow')}
+                    </>
+                  )}
+                </button>
+              )}
               <button type="button" className={`btn ghost${isSaved ? ' on' : ''}`} aria-pressed={isSaved} onClick={onSave}>
                 {isSaved ? '★' : '☆'} {t(isSaved ? 'detail.savedBtn' : 'detail.save')}
               </button>
@@ -219,9 +246,9 @@ export function TourPage({ id }: { id: string }) {
                   </div>
                 )}
               </div>
-              {/* PDF: เปิดหน้าต่างพิมพ์ → เลือก "บันทึกเป็น PDF" (ชื่อไฟล์ใช้ชื่อทัวร์จาก document.title) */}
-              <button type="button" className="btn ghost" onClick={() => window.print()}>
-                📄 {t('detail.pdf')}
+              {/* PDF: เปิดตัวอย่างก่อน แล้วกดดาวน์โหลด (หน้าต่างพิมพ์ → "บันทึกเป็น PDF") */}
+              <button type="button" className="btn ghost" onClick={() => setPdfOpen(true)}>
+                📄 {t('detail.previewPdf')}
               </button>
             </div>
           </aside>
@@ -238,6 +265,8 @@ export function TourPage({ id }: { id: string }) {
           </section>
         )}
       </main>
+      <BookingDrawer tour={tour} departure={departure} open={bookOpen} onClose={closeBook} />
+      <PdfPreview tour={tour} departure={departure} included={INCLUDED} open={pdfOpen} onClose={closePdf} />
     </>
   );
 }
