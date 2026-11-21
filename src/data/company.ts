@@ -1,5 +1,5 @@
 import type { Localized } from '../types';
-import { CALL_CENTER, LINE_OA_ID } from '../utils/line';
+import { CALL_CENTER, LINE_ADD_FRIEND_URL } from '../utils/line';
 
 /**
  * ข้อมูลติดต่อบริษัท (แสดงใน Footer)
@@ -18,15 +18,13 @@ export const COMPANY = {
   /** เลขที่ใบอนุญาตประกอบธุรกิจนำเที่ยว (ตัวอย่าง) */
   license: '11/00000',
   phone: CALL_CENTER || '02-000-0000',
-  email: 'contact@napaii.com',
+  email: 'napaii.officialth@gmail.com',
   /** ลิงก์ Google Maps ของที่อยู่ ('' = ไม่ทำลิงก์) */
   mapUrl: '',
   social: {
     facebook: '#',
-    instagram: '#',
-    line: LINE_OA_ID ? `https://line.me/R/ti/p/${encodeURIComponent(LINE_OA_ID)}` : '#',
-    tiktok: '#',
-    youtube: '#',
+    line: LINE_ADD_FRIEND_URL,
+    email: 'mailto:napaii.officialth@gmail.com',
   },
 };
 

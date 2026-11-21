@@ -276,6 +276,7 @@ export const th: Messages = {
   'booking.title': 'จองทัวร์นี้',
   'booking.sub': 'เลือกช่องทางที่สะดวก เจ้าหน้าที่จะยืนยันที่นั่งและรายละเอียดการชำระเงินให้',
   'booking.lineSub': 'แชทกับเจ้าหน้าที่ พร้อมข้อความจองที่กรอกไว้ให้แล้ว',
+  'booking.lineAddSub': 'เพิ่มเพื่อน LINE แล้วแชทกับเจ้าหน้าที่ฝ่ายจอง',
   'booking.call': 'โทร Call Center',
   'booking.callSub': 'คุยกับเจ้าหน้าที่ฝ่ายจองโดยตรง',
   'booking.callMissing': 'ยังไม่ได้ตั้งค่าเบอร์ Call Center',

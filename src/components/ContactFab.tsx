@@ -1,30 +1,20 @@
-import QRCode from 'qrcode';
 import { useEffect, useRef, useState } from 'react';
 import { COMPANY } from '../data/company';
 import { useI18n } from '../i18n';
-import { LINE_OA_ID } from '../utils/line';
+import { LINE_ADD_FRIEND_URL, LINE_QR_IMAGE } from '../utils/line';
 import { LineIcon } from './LineIcon';
 
 /** ลิงก์เพิ่มเพื่อน LINE OA (สแกน QR หรือกดเปิดในมือถือ) */
-const LINE_ADD_URL = LINE_OA_ID ? `https://line.me/R/ti/p/${encodeURIComponent(LINE_OA_ID)}` : '';
+const LINE_ADD_URL = LINE_ADD_FRIEND_URL;
 
 /**
  * ปุ่มติดต่อลอยมุมขวาล่าง (แทนโฆษณาลอยเดิม)
- * กดแล้วเปิดการ์ด: QR code เพิ่มเพื่อน LINE + ปุ่มเปิด LINE + ปุ่มโทร Call Center
+ * กดแล้วเปิดการ์ด: QR code เพิ่มเพื่อน LINE (รูปทางการ) + ปุ่มเปิด LINE + โทร + อีเมล
  */
 export function ContactFab() {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const [qr, setQr] = useState('');
   const ref = useRef<HTMLDivElement>(null);
-
-  // สร้าง QR จากลิงก์เพิ่มเพื่อน (สร้างครั้งเดียวตอนเปิดครั้งแรก)
-  useEffect(() => {
-    if (!open || qr || !LINE_ADD_URL) return;
-    QRCode.toDataURL(LINE_ADD_URL, { width: 320, margin: 1, errorCorrectionLevel: 'H', color: { dark: '#111111', light: '#ffffff' } })
-      .then(setQr)
-      .catch(() => setQr(''));
-  }, [open, qr]);
 
   // คลิกนอกการ์ด / กด Esc = ปิด
   useEffect(() => {
@@ -50,29 +40,18 @@ export function ContactFab() {
         </div>
 
         <div className="cfab-qr">
-          {LINE_ADD_URL ? (
-            qr ? <img src={qr} alt={t('contact.qrAlt')} width={160} height={160} /> : <span className="cfab-qr-wait" />
-          ) : (
-            <span className="cfab-qr-missing">{t('contact.qrMissing')}</span>
-          )}
-          <span className="cfab-qr-logo" aria-hidden="true">
-            <LineIcon />
-          </span>
+          <img src={LINE_QR_IMAGE} alt={t('contact.qrAlt')} width={160} height={160} loading="lazy" />
         </div>
         <p className="cfab-scan">{t('contact.scan')}</p>
-        {LINE_OA_ID && <p className="cfab-id">{LINE_OA_ID}</p>}
 
-        <a
-          className={`cfab-btn cfab-line${LINE_ADD_URL ? '' : ' disabled'}`}
-          href={LINE_ADD_URL || undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-disabled={!LINE_ADD_URL}
-        >
+        <a className="cfab-btn cfab-line" href={LINE_ADD_URL} target="_blank" rel="noopener noreferrer">
           <LineIcon /> {t('contact.addLine')}
         </a>
         <a className="cfab-btn cfab-call" href={`tel:${COMPANY.phone.replace(/[^\d+]/g, '')}`}>
           📞 {t('contact.call')} · {COMPANY.phone}
+        </a>
+        <a className="cfab-btn cfab-call cfab-mail" href={`mailto:${COMPANY.email}`}>
+          ✉️ {COMPANY.email}
         </a>
       </div>
 

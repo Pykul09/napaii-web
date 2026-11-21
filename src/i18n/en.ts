@@ -278,6 +278,7 @@ export const en = {
   'booking.title': 'Book this tour',
   'booking.sub': 'Choose how you would like to book. Our team will confirm seats and payment details with you.',
   'booking.lineSub': 'Chat with us — booking details are filled in for you',
+  'booking.lineAddSub': 'Add us on LINE and chat with our booking team',
   'booking.call': 'Call Center',
   'booking.callSub': 'Talk to our booking team',
   'booking.callMissing': 'Call center number is not set up yet',
