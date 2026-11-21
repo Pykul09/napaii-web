@@ -5,7 +5,7 @@ import { isComingSoon } from '../utils/calendar';
 import { tourPriceText } from '../utils/format';
 import { useI18n } from '../i18n';
 import type { TourItem } from '../types';
-import { CALL_CENTER, lineOaMessageUrl } from '../utils/line';
+import { CALL_CENTER, LINE_ADD_FRIEND_URL } from '../utils/line';
 import { LineIcon } from './LineIcon';
 
 /** ประเภทคำขอเมื่อไม่ได้จองทัวร์ที่มีอยู่: ทริปส่วนตัว หรือ ทริปกลุ่ม */
@@ -41,18 +41,8 @@ export function BookingDrawer({ tour, departure, request = 'private', open, onCl
   /** ทัวร์ที่กำลังจะเปิดขาย → แผงนี้ใช้ "ฝากติดตาม" แทนการจอง */
   const soon = !!tour && isComingSoon(tour);
 
-  // เปิดแชท LINE OA พร้อมข้อความที่พิมพ์ไว้ให้ (จองทัวร์: รหัส/ชื่อ/วันเดินทาง, ทริปส่วนตัว: ข้อความขอใบเสนอราคา)
-  const bookLine = () => {
-    const message = tour
-      ? t(soon ? 'soon.lineMessage' : 'detail.lineMessage', { code: tour.code, name: loc(tour.title), date })
-      : t(request === 'group' ? 'groupTrip.lineMessage' : 'privateTrip.lineMessage');
-    const url = lineOaMessageUrl(message);
-    if (!url) {
-      toast(t('detail.lineMissing'));
-      return;
-    }
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  // ทุกโหมด (จองทัวร์ / แจ้งเตือนเปิดจอง / ขอทริปส่วนตัว / ทริปกลุ่ม): เปิดลิงก์เพิ่มเพื่อน LINE OA ของ Napaii
+  const bookLine = () => window.open(LINE_ADD_FRIEND_URL, '_blank', 'noopener,noreferrer');
 
   return createPortal(
     <div className={`bk-root${open ? ' show' : ''}`} aria-hidden={!open} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -87,7 +77,7 @@ export function BookingDrawer({ tour, departure, request = 'private', open, onCl
           </span>
           <span className="bk-txt">
             <b>{t('detail.bookLine')}</b>
-            <small>{t('booking.lineSub')}</small>
+            <small>{t('booking.lineAddSub')}</small>
           </span>
           <span aria-hidden="true">›</span>
         </button>
