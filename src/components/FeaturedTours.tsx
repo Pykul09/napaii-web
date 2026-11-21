@@ -58,7 +58,7 @@ export function FeaturedTours() {
       if (country !== 'all' && x.country !== country) return false;
       if (!inMonth(x, month)) return false;
       const c = findCountry(x.country);
-      return [x.title.en, x.title.th, x.route.en, x.route.th, c.name.en, c.name.th, x.keywords, x.category].join(' ').toLowerCase().includes(q);
+      return [x.title.en, x.title.th, x.route.en, x.route.th, c.name.en, c.name.th, x.keywords, x.category, x.code].join(' ').toLowerCase().includes(q);
     });
   }, [tours, query, country, month]);
 
@@ -145,7 +145,7 @@ export function FeaturedTours() {
         ) : visible.length ? (
           <>
             {visible.map((x, i) => (
-              <TourCard key={x.id} tour={x} index={i} departure={month ? x.departures.find((d) => monthOf(d) === month) : undefined} />
+              <TourCard key={x.id} tour={x} index={i} countdown departure={month ? x.departures.find((d) => monthOf(d) === month) : undefined} />
             ))}
             <AdNativeCard index={visible.length} />
           </>

@@ -74,3 +74,13 @@ export const nextDeparture = (tour: TourItem, today = todayBangkok()): string | 
   [...tour.departures].sort().find((d) => d >= today) ?? null;
 
 export const isTourExpired = (tour: TourItem, today = todayBangkok()): boolean => nextDeparture(tour, today) === null;
+
+/** เวลาปิดรับจองของรอบเดินทาง = 00:00 น. เวลาไทยของวันเดินทาง (ms) */
+export const bookingClosesAt = (departure: string): number => Date.parse(`${departure}T00:00:00+07:00`);
+
+
+/** ทัวร์เต็ม (ไม่เหลือที่นั่ง) */
+export const isSoldOut = (tour: TourItem): boolean => tour.seatsLeft <= 0;
+
+/** ทัวร์ที่กำลังจะเปิดขาย — ยังไม่เปิดราคาและยังจองไม่ได้ */
+export const isComingSoon = (tour: TourItem): boolean => tour.status === 'soon';

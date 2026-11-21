@@ -28,6 +28,8 @@ interface I18nValue {
   monthYear: (iso: string) => string;
   month: (iso: string) => string;
   day: (iso: string) => string;
+  /** วันที่ + เวลา (เวลาไทย): "Nov 18, 2026, 9:30 AM" / "18 พ.ย. 2569 09:30 น." (รับ ISO datetime) */
+  dateTime: (iso: string) => string;
   /** 0 → "Free"/"ฟรี", อื่น ๆ → "฿890" */
   price: (baht: number) => string;
 }
@@ -70,6 +72,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const monthYearFmt = fmt(lang, { month: 'long', year: 'numeric' });
     const fullFmt = fmt(lang, { year: 'numeric', month: 'short', day: 'numeric' });
     const at = (iso: string) => new Date(iso);
+    const dateTimeFmt = fmt(lang, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     return {
       lang,
       setLang,
@@ -84,6 +87,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       monthYear: (iso) => monthYearFmt.format(at(iso)),
       month: (iso) => monthFmt.format(at(iso)),
       day: (iso) => dayFmt.format(at(iso)),
+      dateTime: (iso) => dateTimeFmt.format(new Date(iso)) + (lang === 'th' ? ' น.' : ''),
       price: (baht) => (baht === 0 ? t('common.free') : `฿${baht.toLocaleString(LOCALES[lang])}`),
     };
   }, [lang, setLang]);

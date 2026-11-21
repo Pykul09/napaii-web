@@ -52,8 +52,26 @@ export interface ItineraryDay {
   text: Localized;
 }
 
+/** รูปถ่ายพร้อมเครดิต (สำหรับรูปสัญญาอนุญาต CC ที่ต้องให้เครดิตผู้ถ่าย) */
+export interface TourPhoto {
+  src: string;
+  /** รูปขนาดใหญ่สำหรับ hero เต็มจอ (ถ้าไม่มีใช้ src) */
+  large?: string;
+  author: string;
+  license: string;
+  /** หน้าต้นฉบับของรูป */
+  page: string;
+}
+
+/** สถานะการขายของทัวร์: 'soon' = กำลังจะเปิดขาย (ยังไม่เปิดราคา/ยังจองไม่ได้) */
+export type TourStatus = 'onsale' | 'soon';
+
 export interface TourItem {
   id: string;
+  /** ไม่ใส่ = 'onsale' (เปิดขายแล้ว) */
+  status?: TourStatus;
+  /** รหัสทัวร์ 5 หลัก (รหัสประเทศ 2 ตัว + เลข 3 หลัก) เช่น JP001 — ใช้อ้างอิงตอนลูกค้าติดต่อ */
+  code: string;
   title: Localized;
   country: CountryCode;
   /** เส้นทางเมืองที่ไป เช่น Tokyo – Hakone – Kyoto */
@@ -75,6 +93,12 @@ export interface TourItem {
   variant: number;
   /** รูปจริงของทัวร์ 3–4 ภาพ (ถ้ามี) — ถ้าไม่ใส่จะสร้างลายโปสเตอร์ SVG 4 แบบแทน */
   images?: string[];
+  /** ทัวร์ขายดี — แสดงป้าย 🔥 HOT กะพริบบนการ์ด */
+  hot?: boolean;
+  /** รูปวิวหลักบนการ์ด (ถ้าไม่มีจะใช้ลายโปสเตอร์ SVG) */
+  cover?: TourPhoto;
+  /** รูปเพิ่มเติมของทัวร์ (แสดงใน hero หน้ารายละเอียดต่อจาก cover) */
+  gallery?: TourPhoto[];
   description: Localized;
   highlights: Localized[];
   itinerary: ItineraryDay[];
@@ -94,4 +118,24 @@ export interface Article {
   author: Localized;
   readMinutes: number;
   variant: number;
+  /** วันเวลาที่สร้างบทความ (ISO 8601 พร้อมโซนเวลา เช่น 2026-11-18T09:30:00+07:00) */
+  createdAt?: string;
+  /** จำนวนการเข้าชมตั้งต้นจากระบบ (ข้อมูล mock — ของจริงให้ backend ส่งมา) */
+  views?: number;
+  /** รูปหน้าปก (ไม่มี = ลายโปสเตอร์ SVG) */
+  cover?: TourPhoto;
+  /** เนื้อหาบทความ — แต่ละรายการคือ 1 ย่อหน้า */
+  body?: Localized[];
+  /** ทัวร์ที่เกี่ยวข้อง (แสดงปุ่ม "ดูทัวร์" ท้ายบทความ) */
+  tourId?: string;
+  /** ข้อมูลสรุปสั้น ๆ (แสดงในกล่องด้านข้าง) เช่น ช่วงเวลาที่ดีที่สุด งบประมาณ */
+  facts?: ArticleFact[];
+  /** เคล็ดลับ/สิ่งที่ควรรู้ (แสดงเป็นกล่องไฮไลต์ท้ายบทความ) */
+  tips?: Localized[];
+}
+
+export interface ArticleFact {
+  icon: string;
+  label: Localized;
+  value: Localized;
 }
