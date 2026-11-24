@@ -11,6 +11,11 @@ export type CategoryKey = 'culture' | 'nature' | 'food' | 'beach' | 'city' | 'ad
 /** ประเทศปลายทางที่ใช้กรองทัวร์ */
 export type CountryCode = 'jp' | 'kr' | 'tw' | 'vn' | 'cn' | 'sg' | 'id' | 'ch' | 'it';
 
+export interface City {
+  country: CountryCode;
+  name: Localized;
+}
+
 export interface Country {
   code: CountryCode;
   flag: string;
@@ -74,6 +79,8 @@ export interface TourItem {
   code: string;
   title: Localized;
   country: CountryCode;
+  /** เมืองที่ไป (key ใน CITIES เช่น 'tokyo') — เมืองแรก = เมืองหลัก ใช้จัดกลุ่มการ์ดดีลรายเมือง */
+  cities?: string[];
   /** เส้นทางเมืองที่ไป เช่น Tokyo – Hakone – Kyoto */
   route: Localized;
   category: CategoryKey;
@@ -83,6 +90,10 @@ export interface TourItem {
   departures: string[];
   /** ราคาเริ่มต้นต่อท่าน (บาท) */
   price: number;
+  /** ราคาเดิมก่อนลด (บาท) — ใส่เฉพาะทัวร์ที่มีโปรจริง ต้องเป็นราคาที่เคยขายจริง */
+  originalPrice?: number;
+  /** วันสุดท้ายของโปร (YYYY-MM-DD) — เลยวันนี้แล้วจะไม่แสดงส่วนลด */
+  promoEnds?: string;
   seatsLeft: number;
   /** จำนวนผู้จองแล้ว และตัวย่อชื่อสำหรับแสดงอวาตาร์ */
   booked: number;

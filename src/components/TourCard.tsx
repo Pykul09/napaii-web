@@ -10,7 +10,7 @@ import { cssVars } from '../utils/format';
 import { Poster, toneStyle } from './Poster';
 import { HeartIcon } from './SavedTours';
 import { Countdown } from './Countdown';
-import { isSoldOut, nextDeparture } from '../utils/calendar';
+import { discountPct, isSoldOut, nextDeparture } from '../utils/calendar';
 
 const LOW_SEATS = 8;
 
@@ -32,6 +32,7 @@ export function TourCard({ tour, index, departure, countdown = false }: Props) {
   const isSaved = saved.has(tour.id);
   const name = loc(tour.title);
   const soldOut = isSoldOut(tour);
+  const off = discountPct(tour);
   const date = departure ?? nextDeparture(tour) ?? tour.departures[0];
 
   const onSave = () => {
@@ -56,10 +57,14 @@ export function TourCard({ tour, index, departure, countdown = false }: Props) {
     >
       <div className="poster">
         <CardArt tour={tour} />
-        <span className={`tag cat-${tour.category}`}>{t(`cat.${tour.category}`)}</span>
         <span className="cflag">
           {country.flag} {loc(country.name)}
         </span>
+        {off > 0 && (
+          <span className="off-badge" aria-label={t('promo.offAria', { n: off })}>
+            <small>{t('promo.save')}</small>{off}%
+          </span>
+        )}
         {countdown && !soldOut && <Countdown departure={date} />}
         {soldOut && (
           <span className="so-stamp" aria-hidden="true">
@@ -87,8 +92,20 @@ export function TourCard({ tour, index, departure, countdown = false }: Props) {
             <b>{tour.code}</b>
           </span>
           <span className="pr">
-            <small>{t('tour.from')}</small>
-            <PriceTag text={price(tour.price)} />
+            {off > 0 ? (
+              <>
+                <small className="pr-was">
+                  <s>{price(tour.originalPrice!)}</s> · {t('promo.saveAmount', { amount: price(tour.originalPrice! - tour.price) })}
+                </small>
+                <PriceTag text={price(tour.price)} />
+                {tour.promoEnds && <small className="pr-ends">⏰ {t('promo.ends', { date: dateFull(tour.promoEnds) })}</small>}
+              </>
+            ) : (
+              <>
+                <small>{t('tour.from')}</small>
+                <PriceTag text={price(tour.price)} />
+              </>
+            )}
           </span>
         </div>
       </div>

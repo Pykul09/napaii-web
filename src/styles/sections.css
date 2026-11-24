@@ -705,3 +705,54 @@ a.row-link:active { background: var(--soft); }
 /* QR ทางการของ LINE (มีโลโก้ในตัวแล้ว) + แถวอีเมล */
 .cfab-qr { border-color: #e6f9ee; }
 .cfab-mail { font-size: 12.5px; font-weight: 600; word-break: break-all; }
+
+/* โปรลดราคา — ป้าย -%, ราคาเดิมขีดฆ่า, แถบประเทศโปรแรง */
+.off-badge { position: absolute; left: 12px; top: 12px; z-index: 1; display: inline-flex; flex-direction: column; align-items: center; line-height: 1; padding: 6px 10px 7px; border-radius: 12px; background: linear-gradient(135deg, #ff3b30, #e11d48); color: #fff; font-size: 20px; font-weight: 900; letter-spacing: -0.5px; box-shadow: 0 6px 18px rgba(225, 29, 72, 0.5); transform: rotate(-4deg); animation: off-pop 2.4s ease-in-out infinite; }
+.off-badge small { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; margin-bottom: 2px; opacity: 0.9; }
+@keyframes off-pop { 0%, 100% { transform: rotate(-4deg) scale(1); } 50% { transform: rotate(-4deg) scale(1.08); } }
+.pr .pr-was { display: block; text-transform: none; letter-spacing: 0; font-size: 11px; color: var(--mut); }
+.pr .pr-was s { opacity: 0.8; }
+.pr .pr-ends { display: block; margin-top: 3px; text-transform: none; letter-spacing: 0; font-size: 10.5px; font-weight: 700; color: #ea580c; }
+.ev-promo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; font-size: 13px; color: var(--mut); }
+.ev-promo b { color: var(--danger); }
+.ev-promo small { flex-basis: 100%; color: #ea580c; font-weight: 700; font-size: 12px; }
+.off-pill { padding: 3px 9px; border-radius: 99px; background: linear-gradient(135deg, #ff3b30, #e11d48); color: #fff; font-weight: 900; font-size: 13px; }
+
+@keyframes hot-pulse { 50% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(244, 63, 94, 0.15); } }
+.chip-hot { margin-left: 2px; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .off-badge { animation: none; } }
+
+/* กรองตามเมือง (ปุ่มเมือง + การ์ดดีลรายเมือง) */
+.city-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 0 0 18px; }
+.city-card { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 18px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+.city-card:hover { transform: translateY(-3px); border-color: #f43f5e; box-shadow: 0 10px 24px rgba(244, 63, 94, 0.2); }
+.city-card.on { border-color: #e11d48; box-shadow: 0 0 0 2px #e11d48; }
+.city-card.cc-top { border: 2px solid #f97316; background: linear-gradient(135deg, #fff1e6, #ffe4e6); }
+[data-theme='dark'] .city-card.cc-top { background: linear-gradient(135deg, rgba(255, 122, 24, 0.2), rgba(225, 29, 72, 0.2)); }
+.city-card.plain .cc-price { color: var(--ink); }
+.cc-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cc-head b { font-size: 16px; }
+.cc-head small { font-size: 11.5px; color: var(--mut); }
+.cc-off { padding: 3px 9px; border-radius: 99px; background: linear-gradient(135deg, #ff3b30, #e11d48); color: #fff; font-size: 13px; font-weight: 900; }
+.city-card.cc-top .cc-off { animation: hot-pulse 1.6s ease-in-out infinite; }
+.cc-count { font-size: 12px; color: var(--mut); }
+.cc-price { display: flex; align-items: baseline; gap: 8px; font-size: 19px; font-weight: 800; color: var(--danger); }
+.cc-price s { font-size: 12px; font-weight: 500; color: var(--mut); }
+.cc-best { font-size: 11.5px; font-weight: 700; color: #ea580c; }
+@media (prefers-reduced-motion: reduce) { .city-card.cc-top .cc-off { animation: none; } }
+
+/* กล่องราคาหน้ารายละเอียดทัวร์ — อ่านง่ายจากบนลงล่าง */
+.ev-per, .ev-deal-now small { margin-left: 4px; font-size: 14px; font-weight: 600; color: var(--mut); align-self: flex-end; padding-bottom: 6px; }
+.ev-price strong { align-items: baseline; }
+.ev-deal { display: grid; gap: 8px; }
+.ev-deal-tag { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ev-deal-ends { font-size: 13px; font-weight: 700; color: #ea580c; }
+.ev-deal-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.ev-deal-row > span { font-size: 13px; color: var(--mut); }
+.ev-deal-row s { font-size: 16px; color: var(--mut); }
+.ev-deal-now > span { font-weight: 700; color: var(--ink); }
+.ev-deal-now strong { display: inline-flex; align-items: baseline; }
+.ev-deal-now .pr-amt { font-size: 32px; font-weight: 800; letter-spacing: -0.8px; color: var(--danger); }
+.ev-deal-now .pr-cur { font-size: 18px; }
+.ev-deal-save { padding: 9px 12px; border-radius: 12px; background: rgba(34, 197, 94, 0.14); color: #16a34a; font-size: 14px; font-weight: 800; text-align: center; }
+[data-theme='dark'] .ev-deal-save { color: #4ade80; }

@@ -1,4 +1,4 @@
-import type { Article, Country, ItineraryDay, Localized, TourItem } from '../types';
+import type { Article, City, Country, ItineraryDay, Localized, TourItem } from '../types';
 import { SOON_GALLERY, SOON_PHOTOS, TOUR_GALLERY, TOUR_PHOTOS } from './photos';
 
 // ข้อมูลตัวอย่าง (สองภาษา) — ในระบบจริงให้ดึงผ่าน src/services/tours.ts
@@ -20,9 +20,45 @@ export const COUNTRIES: Country[] = [
   { code: 'it', flag: '🇮🇹', name: L('Italy', 'อิตาลี') },
 ];
 
+/** เมืองหลักของทัวร์ (ใช้กรองตามเมือง + การ์ดดีลรายเมือง) */
+export const CITIES: Record<string, City> = {
+  tokyo: { country: 'jp', name: L('Tokyo', 'โตเกียว') },
+  kyoto: { country: 'jp', name: L('Kyoto', 'เกียวโต') },
+  osaka: { country: 'jp', name: L('Osaka', 'โอซาก้า') },
+  sapporo: { country: 'jp', name: L('Sapporo', 'ซัปโปโร') },
+  otaru: { country: 'jp', name: L('Otaru', 'โอตารุ') },
+  takayama: { country: 'jp', name: L('Takayama', 'ทาคายาม่า') },
+  kanazawa: { country: 'jp', name: L('Kanazawa', 'คานาซาวะ') },
+  seoul: { country: 'kr', name: L('Seoul', 'โซล') },
+  jeju: { country: 'kr', name: L('Jeju', 'เชจู') },
+  busan: { country: 'kr', name: L('Busan', 'ปูซาน') },
+  taipei: { country: 'tw', name: L('Taipei', 'ไทเป') },
+  taichung: { country: 'tw', name: L('Taichung', 'ไถจง') },
+  hanoi: { country: 'vn', name: L('Hanoi', 'ฮานอย') },
+  halong: { country: 'vn', name: L('Ha Long', 'ฮาลอง') },
+  danang: { country: 'vn', name: L('Da Nang', 'ดานัง') },
+  hoian: { country: 'vn', name: L('Hoi An', 'ฮอยอัน') },
+  sapa: { country: 'vn', name: L('Sapa', 'ซาปา') },
+  beijing: { country: 'cn', name: L('Beijing', 'ปักกิ่ง') },
+  shanghai: { country: 'cn', name: L('Shanghai', 'เซี่ยงไฮ้') },
+  chengdu: { country: 'cn', name: L('Chengdu', 'เฉิงตู') },
+  guilin: { country: 'cn', name: L('Guilin', 'กุ้ยหลิน') },
+  zhangjiajie: { country: 'cn', name: L('Zhangjiajie', 'จางเจียเจี้ย') },
+  singapore: { country: 'sg', name: L('Singapore', 'สิงคโปร์') },
+  bali: { country: 'id', name: L('Bali', 'บาหลี') },
+  lucerne: { country: 'ch', name: L('Lucerne', 'ลูเซิร์น') },
+  interlaken: { country: 'ch', name: L('Interlaken', 'อินเทอร์ลาเคน') },
+  zermatt: { country: 'ch', name: L('Zermatt', 'เซอร์แมท') },
+  rome: { country: 'it', name: L('Rome', 'โรม') },
+  florence: { country: 'it', name: L('Florence', 'ฟลอเรนซ์') },
+  venice: { country: 'it', name: L('Venice', 'เวนิส') },
+  amalfi: { country: 'it', name: L('Amalfi Coast', 'ชายฝั่งอมาลฟี') },
+};
+
+/** โปรโมชันในข้อมูลตัวอย่าง (originalPrice/promoEnds) เป็น mock — เปลี่ยนเป็นโปรจริงก่อนเปิดใช้ */
 const TOUR_DATA: TourItem[] = [
   {
-    id: 'jp1', hot: true, code: 'JP001', country: 'jp', category: 'culture', days: 6, price: 59900, seatsLeft: 8, booked: 46, attendees: ['AM', 'PK', '+12'], variant: 0,
+    id: 'jp1', hot: true, code: 'JP001', country: 'jp', cities: ['tokyo', 'kyoto', 'osaka'], category: 'culture', days: 6, price: 59900, originalPrice: 69900, promoEnds: '2026-12-31', seatsLeft: 8, booked: 46, attendees: ['AM', 'PK', '+12'], variant: 0,
     departures: ['2026-12-18', '2027-01-22', '2027-02-26'],
     title: L('Tokyo · Kyoto · Osaka Classic', 'โตเกียว เกียวโต โอซาก้า สุดคลาสสิก'),
     route: L('Tokyo – Hakone – Kyoto – Osaka', 'โตเกียว – ฮาโกเน่ – เกียวโต – โอซาก้า'),
@@ -46,7 +82,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'jp2', code: 'JP002', country: 'jp', category: 'nature', days: 5, price: 49900, seatsLeft: 0, booked: 31, attendees: ['NT', 'KL', '+7'], variant: 2,
+    id: 'jp2', code: 'JP002', country: 'jp', cities: ['sapporo', 'otaru'], category: 'nature', days: 5, price: 49900, seatsLeft: 0, booked: 31, attendees: ['NT', 'KL', '+7'], variant: 2,
     departures: ['2027-01-15', '2027-02-05', '2027-02-19'],
     title: L('Hokkaido Winter Wonderland', 'ฮอกไกโด ดินแดนหิมะ'),
     route: L('Sapporo – Otaru – Furano', 'ซัปโปโร – โอตารุ – ฟุราโนะ'),
@@ -69,7 +105,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'kr1', hot: true, code: 'KR001', country: 'kr', category: 'city', days: 5, price: 25900, seatsLeft: 12, booked: 64, attendees: ['TC', 'MK', '+9'], variant: 3,
+    id: 'kr1', hot: true, code: 'KR001', country: 'kr', cities: ['seoul'], category: 'city', days: 5, price: 25900, originalPrice: 29900, promoEnds: '2026-12-15', seatsLeft: 12, booked: 64, attendees: ['TC', 'MK', '+9'], variant: 3,
     departures: ['2026-12-10', '2027-01-14', '2027-03-04'],
     title: L('Seoul Highlights & K-Culture', 'โซล ไฮไลต์และวัฒนธรรมเกาหลี'),
     route: L('Seoul – Nami Island', 'โซล – เกาะนามิ'),
@@ -92,7 +128,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'kr2', code: 'KR002', country: 'kr', category: 'nature', days: 4, price: 19900, seatsLeft: 10, booked: 38, attendees: ['RS', 'LN', '+6'], variant: 4,
+    id: 'kr2', code: 'KR002', country: 'kr', cities: ['jeju'], category: 'nature', days: 4, price: 19900, seatsLeft: 10, booked: 38, attendees: ['RS', 'LN', '+6'], variant: 4,
     departures: ['2026-12-27', '2027-02-12'],
     title: L('Jeju Island Escape', 'เกาะเชจู พักผ่อนสบาย ๆ'),
     route: L('Jeju', 'เชจู'),
@@ -114,7 +150,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'tw1', code: 'TW001', country: 'tw', category: 'food', days: 5, price: 22900, seatsLeft: 0, booked: 52, attendees: ['JW', 'PS', '+8'], variant: 1,
+    id: 'tw1', code: 'TW001', country: 'tw', cities: ['taipei', 'taichung'], category: 'food', days: 5, price: 22900, seatsLeft: 0, booked: 52, attendees: ['JW', 'PS', '+8'], variant: 1,
     departures: ['2026-12-04', '2027-01-08', '2027-02-20'],
     title: L('Taipei · Jiufen · Taichung Food Trail', 'ไทเป จิ่วเฟิ่น ไถจง สายกิน'),
     route: L('Taipei – Jiufen – Taichung', 'ไทเป – จิ่วเฟิ่น – ไถจง'),
@@ -137,7 +173,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'vn1', code: 'VN001', country: 'vn', category: 'nature', days: 4, price: 15900, seatsLeft: 16, booked: 29, attendees: ['DN', 'BH', '+5'], variant: 2,
+    id: 'vn1', code: 'VN001', country: 'vn', cities: ['hanoi', 'halong'], category: 'nature', days: 4, price: 15900, seatsLeft: 16, booked: 29, attendees: ['DN', 'BH', '+5'], variant: 2,
     departures: ['2026-12-05', '2027-01-09', '2027-02-13'],
     title: L('Hanoi · Ha Long Bay · Ninh Binh', 'ฮานอย ฮาลอง นิญบิญ'),
     route: L('Hanoi – Ha Long Bay – Ninh Binh', 'ฮานอย – อ่าวฮาลอง – นิญบิญ'),
@@ -159,7 +195,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'vn2', code: 'VN002', country: 'vn', category: 'beach', days: 4, price: 13900, seatsLeft: 18, booked: 44, attendees: ['SW', 'AP', '+10'], variant: 4,
+    id: 'vn2', code: 'VN002', country: 'vn', cities: ['danang', 'hoian'], category: 'beach', days: 4, price: 13900, originalPrice: 17900, promoEnds: '2026-12-31', seatsLeft: 18, booked: 44, attendees: ['SW', 'AP', '+10'], variant: 4,
     departures: ['2026-12-12', '2027-01-16', '2027-03-06'],
     title: L('Da Nang · Hoi An · Ba Na Hills', 'ดานัง ฮอยอัน บานาฮิลส์'),
     route: L('Da Nang – Hoi An – Ba Na Hills', 'ดานัง – ฮอยอัน – บานาฮิลส์'),
@@ -181,7 +217,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'cn1', code: 'CN001', country: 'cn', category: 'adventure', days: 6, price: 29900, seatsLeft: 9, booked: 22, attendees: ['YL', 'HC', '+4'], variant: 3,
+    id: 'cn1', code: 'CN001', country: 'cn', cities: ['chengdu'], category: 'adventure', days: 6, price: 29900, originalPrice: 34900, promoEnds: '2026-12-31', seatsLeft: 9, booked: 22, attendees: ['YL', 'HC', '+4'], variant: 3,
     departures: ['2027-01-07', '2027-03-11'],
     title: L('Chengdu Pandas & Jiuzhaigou', 'เฉิงตู แพนด้า และจิ่วจ้ายโกว'),
     route: L('Chengdu – Jiuzhaigou – Huanglong', 'เฉิงตู – จิ่วจ้ายโกว – หวงหลง'),
@@ -205,7 +241,75 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'sg1', code: 'SG001', country: 'sg', category: 'city', days: 3, price: 17900, seatsLeft: 14, booked: 58, attendees: ['EC', 'JT', '+11'], variant: 1,
+    id: 'cn2', code: 'CN002', country: 'cn', cities: ['beijing'], category: 'culture', days: 5, price: 21900, originalPrice: 24900, promoEnds: '2026-12-31', seatsLeft: 14, booked: 20, attendees: [], variant: 1,
+    departures: ['2026-12-12', '2027-01-16', '2027-03-06'],
+    title: L('Beijing: Great Wall & Forbidden City', 'ปักกิ่ง กำแพงเมืองจีน และพระราชวังต้องห้าม'),
+    route: L('Beijing – Mutianyu – Forbidden City', 'ปักกิ่ง – มู่เถียนอวี้ – พระราชวังต้องห้าม'),
+    keywords: 'china beijing great wall forbidden city จีน ปักกิ่ง กำแพงเมืองจีน พระราชวังต้องห้าม',
+    description: L(
+      'Walk the Great Wall at Mutianyu, explore the Forbidden City and Tiananmen, and taste Peking duck.',
+      'เดินบนกำแพงเมืองจีนที่มู่เถียนอวี้ ชมพระราชวังต้องห้ามและจัตุรัสเทียนอันเหมิน พร้อมชิมเป็ดปักกิ่ง',
+    ),
+    highlights: [
+      L('Great Wall at Mutianyu by cable car', 'ขึ้นกำแพงเมืองจีนมู่เถียนอวี้ด้วยกระเช้า'),
+      L('Forbidden City and Tiananmen Square', 'พระราชวังต้องห้าม และจัตุรัสเทียนอันเหมิน'),
+      L('Peking duck dinner', 'มื้อค่ำเป็ดปักกิ่ง'),
+    ],
+    itinerary: [
+      D('1', 'Fly Bangkok to Beijing, Wangfujing street.', 'บินกรุงเทพฯ – ปักกิ่ง เดินเล่นถนนหวังฝูจิ่ง'),
+      D('2', 'Great Wall at Mutianyu.', 'กำแพงเมืองจีนมู่เถียนอวี้'),
+      D('3', 'Tiananmen Square and the Forbidden City.', 'จัตุรัสเทียนอันเหมิน และพระราชวังต้องห้าม'),
+      D('4', 'Summer Palace and hutong rickshaw ride.', 'พระราชวังฤดูร้อน และนั่งสามล้อชมหูท่ง'),
+      D('5', 'Fly home.', 'เดินทางกลับ'),
+    ],
+  },
+  {
+    id: 'cn4', code: 'CN003', country: 'cn', cities: ['shanghai'], category: 'city', days: 4, price: 18900, seatsLeft: 16, booked: 12, attendees: [], variant: 3,
+    departures: ['2026-12-18', '2027-01-29', '2027-03-12'],
+    title: L('Shanghai City Lights', 'เซี่ยงไฮ้ เมืองแห่งแสงไฟ'),
+    route: L('Shanghai – The Bund – Zhujiajiao', 'เซี่ยงไฮ้ – เดอะบันด์ – จูเจียเจี่ยว'),
+    keywords: 'china shanghai bund pudong จีน เซี่ยงไฮ้ เดอะบันด์ ผู่ตง',
+    description: L(
+      'The Bund at night, Pudong skyline views, Yu Garden and a water-town day trip.',
+      'ชมเดอะบันด์ยามค่ำ วิวตึกระฟ้าผู่ตง สวนอวี้หยวน และเที่ยวเมืองน้ำโบราณ',
+    ),
+    highlights: [
+      L('The Bund at night', 'เดอะบันด์ยามค่ำคืน'),
+      L('Yu Garden old town', 'สวนอวี้หยวนและเมืองเก่า'),
+      L('Zhujiajiao water town', 'เมืองน้ำจูเจียเจี่ยว'),
+    ],
+    itinerary: [
+      D('1', 'Fly Bangkok to Shanghai, Nanjing Road and the Bund.', 'บินกรุงเทพฯ – เซี่ยงไฮ้ ถนนนานจิง และเดอะบันด์'),
+      D('2', 'Yu Garden, Pudong observation deck.', 'สวนอวี้หยวน และจุดชมวิวผู่ตง'),
+      D('3', 'Zhujiajiao water town.', 'เมืองน้ำโบราณจูเจียเจี่ยว'),
+      D('4', 'Fly home.', 'เดินทางกลับ'),
+    ],
+  },
+  {
+    id: 'cn5', code: 'CN004', country: 'cn', cities: ['guilin'], category: 'nature', days: 5, price: 19900, originalPrice: 21900, promoEnds: '2026-12-31', seatsLeft: 12, booked: 18, attendees: [], variant: 0,
+    departures: ['2026-12-20', '2027-02-12', '2027-04-02'],
+    title: L('Guilin & Yangshuo Li River Cruise', 'กุ้ยหลิน หยางซั่ว ล่องแม่น้ำหลีเจียง'),
+    route: L('Guilin – Li River – Yangshuo', 'กุ้ยหลิน – แม่น้ำหลีเจียง – หยางซั่ว'),
+    keywords: 'china guilin yangshuo li river จีน กุ้ยหลิน หยางซั่ว หลีเจียง',
+    description: L(
+      'Cruise past the famous karst peaks of the Li River and cycle through Yangshuo\'s countryside.',
+      'ล่องแม่น้ำหลีเจียงผ่านภูเขาหินปูนสุดอลังการ และปั่นจักรยานชมชนบทหยางซั่ว',
+    ),
+    highlights: [
+      L('Li River cruise', 'ล่องเรือแม่น้ำหลีเจียง'),
+      L('Yangshuo West Street', 'ถนนฝรั่งหยางซั่ว'),
+      L('Reed Flute Cave', 'ถ้ำขลุ่ยอ้อ'),
+    ],
+    itinerary: [
+      D('1', 'Fly Bangkok to Guilin, Elephant Trunk Hill.', 'บินกรุงเทพฯ – กุ้ยหลิน ชมเขางวงช้าง'),
+      D('2', 'Li River cruise to Yangshuo.', 'ล่องแม่น้ำหลีเจียงไปหยางซั่ว'),
+      D('3', 'Countryside bike ride and West Street.', 'ปั่นจักรยานชมชนบท และถนนฝรั่ง'),
+      D('4', 'Reed Flute Cave, back to Guilin.', 'ถ้ำขลุ่ยอ้อ กลับกุ้ยหลิน'),
+      D('5', 'Fly home.', 'เดินทางกลับ'),
+    ],
+  },
+  {
+    id: 'sg1', code: 'SG001', country: 'sg', cities: ['singapore'], category: 'city', days: 3, price: 17900, originalPrice: 19900, promoEnds: '2026-12-20', seatsLeft: 14, booked: 58, attendees: ['EC', 'JT', '+11'], variant: 1,
     departures: ['2026-12-19', '2027-01-29', '2027-02-26'],
     title: L('Singapore Family Fun', 'สิงคโปร์ ทริปครอบครัวสนุกทั้งวัน'),
     route: L('Singapore – Sentosa', 'สิงคโปร์ – เซ็นโตซ่า'),
@@ -226,7 +330,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'id1', code: 'ID001', country: 'id', category: 'beach', days: 5, price: 21900, seatsLeft: 11, booked: 40, attendees: ['KA', 'MP', '+7'], variant: 2,
+    id: 'id1', code: 'ID001', country: 'id', cities: ['bali'], category: 'beach', days: 5, price: 21900, seatsLeft: 11, booked: 40, attendees: ['KA', 'MP', '+7'], variant: 2,
     departures: ['2026-12-23', '2027-01-20', '2027-02-10'],
     title: L('Bali Beaches & Temples', 'บาหลี ชายหาดและวัดศักดิ์สิทธิ์'),
     route: L('Ubud – Uluwatu – Seminyak', 'อูบุด – อูลูวาตู – เซมินยัค'),
@@ -249,7 +353,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'ch1', code: 'CH001', country: 'ch', category: 'adventure', days: 8, price: 139900, seatsLeft: 0, booked: 18, attendees: ['VK', 'OP', '+3'], variant: 0,
+    id: 'ch1', code: 'CH001', country: 'ch', cities: ['interlaken', 'lucerne'], category: 'adventure', days: 8, price: 139900, seatsLeft: 0, booked: 18, attendees: ['VK', 'OP', '+3'], variant: 0,
     departures: ['2027-02-06', '2027-03-13'],
     title: L('Swiss Alps: Jungfrau & Lucerne', 'สวิตเซอร์แลนด์ จุงเฟรา และลูเซิร์น'),
     route: L('Zurich – Lucerne – Interlaken – Zermatt', 'ซูริค – ลูเซิร์น – อินเทอร์ลาเคน – เซอร์แมท'),
@@ -274,7 +378,7 @@ const TOUR_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'it1', code: 'IT001', country: 'it', category: 'culture', days: 8, price: 99900, seatsLeft: 7, booked: 27, attendees: ['GB', 'FS', '+5'], variant: 3,
+    id: 'it1', code: 'IT001', country: 'it', cities: ['rome', 'florence', 'venice'], category: 'culture', days: 8, price: 99900, originalPrice: 119900, promoEnds: '2027-01-15', seatsLeft: 7, booked: 27, attendees: ['GB', 'FS', '+5'], variant: 3,
     departures: ['2027-02-27', '2027-03-27'],
     title: L('Italy: Rome · Florence · Venice', 'อิตาลี โรม ฟลอเรนซ์ เวนิส'),
     route: L('Rome – Florence – Venice', 'โรม – ฟลอเรนซ์ – เวนิส'),
@@ -306,7 +410,7 @@ const TOUR_DATA: TourItem[] = [
  */
 const SOON_DATA: TourItem[] = [
   {
-    id: 'jp3', status: 'soon', code: 'JP101', country: 'jp', category: 'culture', days: 6, price: 54900, seatsLeft: 30, booked: 0, attendees: [], variant: 1,
+    id: 'jp3', status: 'soon', code: 'JP101', country: 'jp', cities: ['takayama', 'kanazawa'], category: 'culture', days: 6, price: 54900, seatsLeft: 30, booked: 0, attendees: [], variant: 1,
     departures: ['2026-12-06', '2027-01-17', '2027-02-14'],
     title: L('Japan Alps: Shirakawa-go · Takayama · Kanazawa', 'เจแปนแอลป์ ชิราคาวาโกะ ทาคายาม่า คานาซาวะ'),
     route: L('Nagoya – Shirakawa-go – Takayama – Kanazawa', 'นาโกย่า – ชิราคาวาโกะ – ทาคายาม่า – คานาซาวะ'),
@@ -329,7 +433,7 @@ const SOON_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'kr3', status: 'soon', code: 'KR101', country: 'kr', category: 'city', days: 4, price: 18900, seatsLeft: 30, booked: 0, attendees: [], variant: 3,
+    id: 'kr3', status: 'soon', code: 'KR101', country: 'kr', cities: ['busan'], category: 'city', days: 4, price: 18900, seatsLeft: 30, booked: 0, attendees: [], variant: 3,
     departures: ['2026-12-11', '2027-01-22', '2027-03-05'],
     title: L('Busan by the Sea', 'ปูซาน เมืองริมทะเล'),
     route: L('Busan – Gamcheon – Haeundae', 'ปูซาน – คัมชอน – แฮอุนแด'),
@@ -351,7 +455,7 @@ const SOON_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'vn3', status: 'soon', code: 'VN101', country: 'vn', category: 'nature', days: 4, price: 14900, seatsLeft: 30, booked: 0, attendees: [], variant: 0,
+    id: 'vn3', status: 'soon', code: 'VN101', country: 'vn', cities: ['sapa'], category: 'nature', days: 4, price: 14900, seatsLeft: 30, booked: 0, attendees: [], variant: 0,
     departures: ['2026-12-15', '2027-01-29', '2027-04-09'],
     title: L('Sapa Rice Terraces & Fansipan', 'ซาปา นาขั้นบันได และยอดเขาฟานซิปัน'),
     route: L('Hanoi – Sapa – Fansipan', 'ฮานอย – ซาปา – ฟานซิปัน'),
@@ -373,7 +477,7 @@ const SOON_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'cn3', status: 'soon', code: 'CN101', country: 'cn', category: 'adventure', days: 6, price: 27900, seatsLeft: 30, booked: 0, attendees: [], variant: 4,
+    id: 'cn3', status: 'soon', code: 'CN101', country: 'cn', cities: ['zhangjiajie'], category: 'adventure', days: 6, price: 27900, seatsLeft: 30, booked: 0, attendees: [], variant: 4,
     departures: ['2026-12-20', '2027-02-05', '2027-03-19'],
     title: L('Zhangjiajie, Tianmen & Fenghuang', 'จางเจียเจี้ย เทียนเหมินซาน และเมืองโบราณเฟิ่งหวง'),
     route: L('Changsha – Zhangjiajie – Tianmen – Fenghuang', 'ฉางซา – จางเจียเจี้ย – เทียนเหมินซาน – เฟิ่งหวง'),
@@ -396,7 +500,7 @@ const SOON_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'it3', status: 'soon', code: 'IT101', country: 'it', category: 'beach', days: 7, price: 89900, seatsLeft: 30, booked: 0, attendees: [], variant: 2,
+    id: 'it3', status: 'soon', code: 'IT101', country: 'it', cities: ['amalfi'], category: 'beach', days: 7, price: 89900, seatsLeft: 30, booked: 0, attendees: [], variant: 2,
     departures: ['2027-01-10', '2027-03-12', '2027-05-14'],
     title: L('Amalfi Coast & Capri', 'ชายฝั่งอมาลฟี และเกาะคาปรี'),
     route: L('Rome – Naples – Positano – Capri', 'โรม – เนเปิลส์ – โพซิตาโน – คาปรี'),
@@ -418,7 +522,7 @@ const SOON_DATA: TourItem[] = [
     ],
   },
   {
-    id: 'ch3', status: 'soon', code: 'CH101', country: 'ch', category: 'nature', days: 7, price: 129900, seatsLeft: 30, booked: 0, attendees: [], variant: 3,
+    id: 'ch3', status: 'soon', code: 'CH101', country: 'ch', cities: ['zermatt'], category: 'nature', days: 7, price: 129900, seatsLeft: 30, booked: 0, attendees: [], variant: 3,
     departures: ['2027-01-24', '2027-02-21', '2027-06-11'],
     title: L('Zermatt & the Matterhorn', 'เซอร์แมท และยอดเขามัทเทอร์ฮอร์น'),
     route: L('Zurich – Zermatt – Gornergrat – Geneva', 'ซูริค – เซอร์แมท – กอร์เนอร์กราท – เจนีวา'),
