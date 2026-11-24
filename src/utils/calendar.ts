@@ -84,3 +84,12 @@ export const isSoldOut = (tour: TourItem): boolean => tour.seatsLeft <= 0;
 
 /** ทัวร์ที่กำลังจะเปิดขาย — ยังไม่เปิดราคาและยังจองไม่ได้ */
 export const isComingSoon = (tour: TourItem): boolean => tour.status === 'soon';
+
+/** ส่วนลด (%) ของทัวร์ — 0 เมื่อไม่มีโปร, โปรหมดอายุ, ทัวร์เต็ม หรือยังไม่เปิดขาย */
+export function discountPct(tour: TourItem, today = todayBangkok()): number {
+  if (!tour.originalPrice || tour.originalPrice <= tour.price) return 0;
+  if (isSoldOut(tour) || isComingSoon(tour)) return 0;
+  if (tour.promoEnds && tour.promoEnds < today) return 0;
+  // ปัดลงเสมอ — ป้ายจะไม่บอกส่วนลดเกินจริง (เช่น 16.68% แสดง -16%)
+  return Math.floor((1 - tour.price / tour.originalPrice) * 100);
+}

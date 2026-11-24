@@ -90,6 +90,30 @@ export const TOUR_PHOTOS: Record<string, TourPhoto> = {
     license: "CC BY-SA 4.0",
     page: "https://commons.wikimedia.org/wiki/File:Panorama_of_Canal_Grande_and_Ponte_di_Rialto,_Venice_-_September_2017.jpg",
   },
+  cn2:
+  {
+    src: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Great_Wall_of_China_July_2006.JPG/960px-Great_Wall_of_China_July_2006.JPG",
+    large: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Great_Wall_of_China_July_2006.JPG/1920px-Great_Wall_of_China_July_2006.JPG",
+    author: "Velatrix",
+    license: "CC0",
+    page: "https://commons.wikimedia.org/wiki/File:Great_Wall_of_China_July_2006.JPG",
+  },
+  cn4:
+  {
+    src: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Pudong_Shanghai_November_2017_panorama.jpg/960px-Pudong_Shanghai_November_2017_panorama.jpg",
+    large: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Pudong_Shanghai_November_2017_panorama.jpg/1920px-Pudong_Shanghai_November_2017_panorama.jpg",
+    author: "King of Hearts",
+    license: "CC BY-SA 4.0",
+    page: "https://commons.wikimedia.org/wiki/File:Pudong_Shanghai_November_2017_panorama.jpg",
+  },
+  cn5:
+  {
+    src: "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/1_li_jiang_guilin_yangshuo_2011.jpg/960px-1_li_jiang_guilin_yangshuo_2011.jpg",
+    large: "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/1_li_jiang_guilin_yangshuo_2011.jpg/1920px-1_li_jiang_guilin_yangshuo_2011.jpg",
+    author: "chensiyuan",
+    license: "CC BY-SA 4.0",
+    page: "https://commons.wikimedia.org/wiki/File:1_li_jiang_guilin_yangshuo_2011.jpg",
+  },
 };
 
 /** รูปเพิ่มเติมของแต่ละทัวร์ (hero หน้ารายละเอียด) — Wikimedia Commons, เครดิตแสดงใน Footer */
@@ -315,6 +339,24 @@ export const TOUR_GALLERY: Record<string, TourPhoto[]> = {
       license: "CC0",
       page: "https://commons.wikimedia.org/wiki/File:Fontaine_Trevi_-_Rome.jpg",
     },
+  ],
+  cn2: [
+    {
+      src: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Sunset_of_the_Forbidden_City_2006.JPG/1920px-Sunset_of_the_Forbidden_City_2006.JPG",
+      author: "User:kallgan",
+      license: "CC BY-SA 3.0",
+      page: "https://commons.wikimedia.org/wiki/File:Sunset_of_the_Forbidden_City_2006.JPG",
+    },
+  ],
+  cn4: [
+    {
+      src: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Shanghai_-_Yu_Garden_-_0035.jpg/1920px-Shanghai_-_Yu_Garden_-_0035.jpg",
+      author: "Stefan Fussan",
+      license: "CC BY-SA 3.0",
+      page: "https://commons.wikimedia.org/wiki/File:Shanghai_-_Yu_Garden_-_0035.jpg",
+    },
+  ],
+  cn5: [
   ],
 };
 

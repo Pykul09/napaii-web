@@ -7,7 +7,7 @@ import { useSavedTours } from '../hooks/useSavedTours';
 import { useI18n, type MessageKey } from '../i18n';
 import { fetchFeaturedTours, fetchTourById } from '../services/tours';
 import type { TourItem } from '../types';
-import { downloadIcs, googleCalendarUrl, isComingSoon, isSoldOut } from '../utils/calendar';
+import { discountPct, downloadIcs, googleCalendarUrl, isComingSoon, isSoldOut } from '../utils/calendar';
 import { tourPriceText } from '../utils/format';
 import { Countdown } from './Countdown';
 import { BookingDrawer } from './BookingDrawer';
@@ -30,6 +30,7 @@ export function TourPage({ id }: { id: string }) {
   const [departure, setDeparture] = useState('');
   const [calOpen, setCalOpen] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
   const closeBook = useCallback(() => setBookOpen(false), []);
   // บอก RouteLoader ว่ายังโหลดข้อมูลทัวร์อยู่ → ค้างหน้าจอ loading ไว้จนเสร็จ
@@ -91,6 +92,7 @@ export function TourPage({ id }: { id: string }) {
 
   const country = findCountry(tour.country);
   const soon = isComingSoon(tour);
+  const off = discountPct(tour);
   const isSaved = saved.has(tour.id);
 
   const onSave = () => {
@@ -103,6 +105,31 @@ export function TourPage({ id }: { id: string }) {
   };
 
   // ปุ่มจอง: เปิดแผงด้านข้างให้เลือก จองทาง LINE หรือ โทร Call Center
+  // คัดลอกลิงก์หน้าทัวร์นี้ไว้แชร์ (LINE, Facebook, แชท ฯลฯ)
+  const onCopyLink = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // เบราว์เซอร์เก่า / ไม่อนุญาต clipboard → ใช้วิธีเลือกข้อความแล้วคัดลอก
+      const box = document.createElement('textarea');
+      box.value = url;
+      box.setAttribute('readonly', '');
+      box.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+      document.body.appendChild(box);
+      box.select();
+      const ok = document.execCommand('copy');
+      box.remove();
+      if (!ok) {
+        toast(t('detail.copyFailed'));
+        return;
+      }
+    }
+    toast(t('detail.linkCopied'));
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
+
   const onBook = () => setBookOpen(true);
 
   return (
@@ -167,20 +194,42 @@ export function TourPage({ id }: { id: string }) {
               <span>{t('tour.code')}</span>
               <b>{tour.code}</b>
             </div>
-            <div className={`ev-price${soon ? ' rp-soon' : ''}`}>
-              <span>{t(soon ? 'upcoming.priceSoon' : 'detail.price')}</span>
-              <strong>
-                <PriceTag text={tourPriceText(tour, price)} />
-              </strong>
-            </div>
+            {off > 0 ? (
+              // มีโปร: อ่านจากบนลงล่าง = ป้ายโปร → ราคาปกติ → ราคาโปรต่อท่าน → ประหยัดเท่าไร
+              <div className="ev-deal">
+                <div className="ev-deal-tag">
+                  <span className="off-pill">{t('promo.pct', { n: off })}</span>
+                  {tour.promoEnds && <span className="ev-deal-ends">⏰ {t('promo.ends', { date: dateFull(tour.promoEnds) })}</span>}
+                </div>
+                <div className="ev-deal-row">
+                  <span>{t('promo.normalPrice')}</span>
+                  <s>{price(tour.originalPrice!)}</s>
+                </div>
+                <div className="ev-deal-row ev-deal-now">
+                  <span>{t('promo.dealPrice')}</span>
+                  <strong>
+                    <PriceTag text={price(tour.price)} />
+                    <small>/{t('promo.person')}</small>
+                  </strong>
+                </div>
+                <div className="ev-deal-save">✓ {t('promo.savePerPerson', { amount: price(tour.originalPrice! - tour.price) })}</div>
+              </div>
+            ) : (
+              <div className={`ev-price${soon ? ' rp-soon' : ''}`}>
+                <span>{t(soon ? 'upcoming.priceSoon' : 'detail.price')}</span>
+                <strong>
+                  <PriceTag text={tourPriceText(tour, price)} />
+                  <small className="ev-per">/{t('promo.person')}</small>
+                </strong>
+              </div>
+            )}
             <div className="ev-sub">
-              <p className="ev-free">{t('detail.perPerson')}</p>
               {soon ? (
                 <p className="seat-note soon-note">🔔 {t('soon.badge')}</p>
               ) : isSoldOut(tour) ? (
                 <p className="seat-note">{t('tour.soldOutNote')}</p>
               ) : (
-                tour.seatsLeft <= SEATS_NOTICE && <p className="seat-note">{t('tour.seats', { n: tour.seatsLeft })}</p>
+                tour.seatsLeft <= SEATS_NOTICE && <p className="seat-note">🪑 {t('tour.seats', { n: tour.seatsLeft })}</p>
               )}
             </div>
 
@@ -215,6 +264,9 @@ export function TourPage({ id }: { id: string }) {
               )}
               <button type="button" className={`btn ghost${isSaved ? ' on' : ''}`} aria-pressed={isSaved} onClick={onSave}>
                 {isSaved ? '★' : '☆'} {t(isSaved ? 'detail.savedBtn' : 'detail.save')}
+              </button>
+              <button type="button" className={`btn ghost${copied ? ' on' : ''}`} onClick={onCopyLink}>
+                {copied ? `✓ ${t('detail.linkCopied')}` : `🔗 ${t('detail.copyLink')}`}
               </button>
               <div className="cal">
                 <button type="button" className="btn ghost" aria-haspopup="menu" aria-expanded={calOpen} onClick={() => setCalOpen((o) => !o)}>
