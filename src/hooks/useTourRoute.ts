@@ -30,3 +30,18 @@ export function rememberHomeScroll(): void {
   if (!TOUR_HASH.test(window.location.hash)) homeScrollY = window.scrollY;
 }
 export const recalledHomeScroll = (): number => homeScrollY;
+
+/** หน้าโปรไฟล์ #/profile */
+export const PROFILE_HASH = '#/profile';
+const readProfile = (): boolean => window.location.hash === PROFILE_HASH;
+
+/** true เมื่ออยู่หน้าโปรไฟล์ */
+export function useProfileRoute(): boolean {
+  const [on, setOn] = useState<boolean>(readProfile);
+  useEffect(() => {
+    const onChange = () => setOn(readProfile());
+    window.addEventListener('hashchange', onChange);
+    return () => window.removeEventListener('hashchange', onChange);
+  }, []);
+  return on;
+}
