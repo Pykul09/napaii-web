@@ -5,6 +5,7 @@ import { AuthModal } from './components/AuthModal';
 import { BootLoader } from './components/BootLoader';
 import { CommunityCta } from './components/CommunityCta';
 import { ContactFab } from './components/ContactFab';
+import { CurrencyRates } from './components/CurrencyRates';
 import { FeaturedTours } from './components/FeaturedTours';
 import { Footer } from './components/Footer';
 import { Hero } from './components/Hero';
@@ -56,6 +57,7 @@ export default function App() {
                 <CommunityCta />
                 <UpcomingDepartures />
                 <AdBanner />
+                <CurrencyRates />
                 <Articles />
                 <AdDouble />
               </main>

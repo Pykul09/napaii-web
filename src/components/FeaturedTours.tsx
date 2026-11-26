@@ -5,11 +5,14 @@ import { fetchFeaturedTours } from '../services/tours';
 import type { CountryCode, TourItem } from '../types';
 import { discountPct } from '../utils/calendar';
 import { AdNativeCard } from './AdSlot';
+import { FilterSort, NO_FILTERS, defaultDate, passesFilters, sortTours, type SortKey, type TourFilters } from './FilterSort';
 import { Reveal } from './Reveal';
 import { SearchBox, tourMatches } from './SearchBox';
 import { TourCard, TourSkeleton } from './TourCard';
 
 type CountryFilter = 'all' | CountryCode;
+type ViewMode = 'grid' | 'list';
+const VIEW_KEY = 'napaii.featuredView';
 
 const monthOf = (date: string): string => date.slice(0, 7);
 
@@ -25,6 +28,24 @@ export function FeaturedTours() {
     setCity('all');
   };
   const [month, setMonth] = useState(''); // '' = ทุกเดือน, ไม่งั้นเป็น YYYY-MM
+  const [sort, setSort] = useState<SortKey>('recommended');
+  const [filters, setFilters] = useState<TourFilters>(NO_FILTERS);
+  // มุมมองการ์ด: grid = 3 คอลัมน์ (แนวตั้ง), list = การ์ดแนวนอนแถวละใบ — จำค่าไว้ใน localStorage
+  const [view, setView] = useState<ViewMode>(() => {
+    try {
+      return localStorage.getItem(VIEW_KEY) === 'list' ? 'list' : 'grid';
+    } catch {
+      return 'grid';
+    }
+  });
+  const chooseView = (v: ViewMode) => {
+    setView(v);
+    try {
+      localStorage.setItem(VIEW_KEY, v);
+    } catch {
+      /* ignore */
+    }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -99,14 +120,19 @@ export function FeaturedTours() {
   const cityDeals = cityStats.length >= 2 && cityStats.some(([, v]) => v.off > 0);
 
   // ค้นหาได้ทั้งไทยและอังกฤษ ไม่ว่าหน้าเว็บจะแสดงภาษาไหนอยู่ และใช้ร่วมกับตัวกรองประเทศ + เดือน
+  // วันเดินทางที่โชว์บนการ์ด (ใช้ทั้งแสดงผลและเรียง "ออกเดินทางใกล้สุด")
+  const dateOf = (x: TourItem): string => (month ? x.departures.find((d) => monthOf(d) === month) : undefined) ?? defaultDate(x);
+
   const visible = useMemo(() => {
-    return (tours ?? []).filter((x) => {
+    const list = (tours ?? []).filter((x) => {
       if (country !== 'all' && x.country !== country) return false;
       if (city !== 'all' && x.cities?.[0] !== city) return false;
       if (!inMonth(x, month)) return false;
+      if (!passesFilters(x, filters)) return false;
       return tourMatches(x, query);
     });
-  }, [tours, query, country, city, month]);
+    return sortTours(list, sort, dateOf);
+  }, [tours, query, country, city, month, filters, sort]);
 
   return (
     <>
@@ -116,9 +142,22 @@ export function FeaturedTours() {
           <p>{t('featured.sub')}</p>
         </div>
         <div className="tools">
-          <a className="va" href="#">
-            {t('featured.viewAll')}
-          </a>
+          <span className="vt" role="group" aria-label={t('featured.viewLabel')}>
+            <button type="button" className={view === 'grid' ? 'on' : ''} aria-pressed={view === 'grid'} aria-label={t('featured.viewGrid')} title={t('featured.viewGrid')} onClick={() => chooseView('grid')}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <rect x="1" y="1" width="4" height="14" rx="1.2" />
+                <rect x="6" y="1" width="4" height="14" rx="1.2" />
+                <rect x="11" y="1" width="4" height="14" rx="1.2" />
+              </svg>
+            </button>
+            <button type="button" className={view === 'list' ? 'on' : ''} aria-pressed={view === 'list'} aria-label={t('featured.viewList')} title={t('featured.viewList')} onClick={() => chooseView('list')}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <rect x="1" y="1" width="14" height="4" rx="1.2" />
+                <rect x="1" y="6" width="14" height="4" rx="1.2" />
+                <rect x="1" y="11" width="14" height="4" rx="1.2" />
+              </svg>
+            </button>
+          </span>
           <span>
             <button type="button" className="ar" aria-label={t('featured.prev')} onClick={prev}>
               ‹
@@ -141,17 +180,16 @@ export function FeaturedTours() {
             setCity(k);
           }}
         />
-        <label className="mq">
-          <span aria-hidden="true">📅</span>
-          <select aria-label={t('featured.monthLabel')} value={month} disabled={!tours} onChange={(e) => onMonthChange(e.target.value)}>
-            <option value="">{t('featured.anyMonth')}</option>
-            {months.map((m) => (
-              <option key={m} value={m}>
-                {monthYear(`${m}-01`)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FilterSort
+          sort={sort}
+          onSort={setSort}
+          filters={filters}
+          onFilters={setFilters}
+          month={month}
+          months={months}
+          onMonth={onMonthChange}
+          disabled={!tours}
+        />
       </div>
 
       {query && (
@@ -220,19 +258,20 @@ export function FeaturedTours() {
             t(visible.length === 1 ? 'featured.countOne' : 'featured.count', { n: visible.length }),
             month && `📅 ${monthYear(`${month}-01`)}`,
             country !== 'all' && `${findCountry(country).flag} ${loc(findCountry(country).name)}`,
+            sort !== 'recommended' && `↕ ${t(`fs.sort.${sort}`)}`,
           ]
             .filter(Boolean)
             .join(' · ')}
         </p>
       )}
 
-      <div className="cards">
+      <div className={`cards${view === 'list' ? ' list' : ''}`}>
         {tours === null ? (
           Array.from({ length: 6 }, (_, i) => <TourSkeleton key={i} />)
         ) : visible.length ? (
           <>
             {visible.map((x, i) => (
-              <TourCard key={x.id} tour={x} index={i} countdown departure={month ? x.departures.find((d) => monthOf(d) === month) : undefined} />
+              <TourCard key={x.id} tour={x} index={i} countdown departure={month ? dateOf(x) : undefined} />
             ))}
             <AdNativeCard index={visible.length} />
           </>

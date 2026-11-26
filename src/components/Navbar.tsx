@@ -7,12 +7,13 @@ import { ProfileMenu } from './ProfileMenu';
 import { SavedTours } from './SavedTours';
 import { ThemeToggle } from './ThemeToggle';
 
-type NavKey = 'home' | 'tours' | 'upcoming' | 'articles';
+type NavKey = 'home' | 'tours' | 'upcoming' | 'rates' | 'articles';
 
 const NAV: { key: NavKey; href: string; label: MessageKey }[] = [
   { key: 'home', href: '#', label: 'nav.home' },
   { key: 'tours', href: '#featured', label: 'nav.tours' },
   { key: 'upcoming', href: '#upcoming', label: 'nav.upcoming' },
+  { key: 'rates', href: '#rates', label: 'nav.rates' },
   { key: 'articles', href: '#articles', label: 'nav.articles' },
 ];
 
@@ -20,6 +21,7 @@ const NAV: { key: NavKey; href: string; label: MessageKey }[] = [
 function navFromHash(hash: string): NavKey {
   if (hash === '#featured' || hash.startsWith('#/tours/')) return 'tours';
   if (hash === '#upcoming') return 'upcoming';
+  if (hash === '#rates') return 'rates';
   if (hash === '#articles') return 'articles';
   return 'home';
 }
@@ -28,6 +30,7 @@ function navFromHash(hash: string): NavKey {
 const SECTIONS: { key: NavKey; id: string }[] = [
   { key: 'tours', id: 'featured' },
   { key: 'upcoming', id: 'upcoming' },
+  { key: 'rates', id: 'rates' },
   { key: 'articles', id: 'articles' },
 ];
 /** ระยะจากขอบบนจอที่ถือว่า "เข้าถึงส่วนนั้นแล้ว" (เผื่อความสูง navbar) */
