@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { authService, type SignInInput, type SignUpInput } from '../services/auth';
+import { authService, type ProfileUpdate, type SignInInput, type SignUpInput } from '../services/auth';
 import type { SocialProvider, User } from '../types';
 
 export type AuthMode = 'signin' | 'signup';
@@ -13,6 +13,7 @@ interface AuthContextValue {
   signIn: (input: SignInInput) => Promise<User>;
   signUp: (input: SignUpInput) => Promise<User>;
   social: (provider: SocialProvider) => Promise<User>;
+  updateProfile: (input: ProfileUpdate) => Promise<User>;
   signOut: () => void;
 }
 
@@ -41,14 +42,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(u);
     return u;
   }, []);
+  const updateProfile = useCallback(async (input: ProfileUpdate) => {
+    const u = await authService.updateProfile(input);
+    setUser(u);
+    return u;
+  }, []);
   const signOut = useCallback(() => {
     authService.signOut();
     setUser(null);
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, modal, openAuth, closeAuth, setAuthMode, signIn, signUp, social, signOut }),
-    [user, modal, openAuth, closeAuth, setAuthMode, signIn, signUp, social, signOut],
+    () => ({ user, modal, openAuth, closeAuth, setAuthMode, signIn, signUp, social, updateProfile, signOut }),
+    [user, modal, openAuth, closeAuth, setAuthMode, signIn, signUp, social, updateProfile, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

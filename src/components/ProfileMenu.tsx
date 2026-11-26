@@ -33,8 +33,9 @@ export function ProfileMenu() {
           <br />
           <i className="pb2">{t(`provider.${user.provider}`)}</i>
         </div>
-        <a href="#">{t('profile.profile')}</a>
-        <a href="#">{t('profile.settings')}</a>
+        <a href="#/profile" onClick={() => setOpen(false)}>
+          {t('profile.profile')}
+        </a>
         <a
           href="#"
           onClick={(e) => {

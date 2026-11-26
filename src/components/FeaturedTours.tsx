@@ -6,6 +6,7 @@ import type { CountryCode, TourItem } from '../types';
 import { discountPct } from '../utils/calendar';
 import { AdNativeCard } from './AdSlot';
 import { Reveal } from './Reveal';
+import { SearchBox, tourMatches } from './SearchBox';
 import { TourCard, TourSkeleton } from './TourCard';
 
 type CountryFilter = 'all' | CountryCode;
@@ -18,6 +19,11 @@ export function FeaturedTours() {
   const [query, setQuery] = useState('');
   const [country, setCountry] = useState<CountryFilter>('all');
   const [city, setCity] = useState('all'); // 'all' หรือ key ใน CITIES
+  /** เลือกประเทศ (ล้างตัวกรองเมืองทุกครั้ง) */
+  const chooseCountry = (c: CountryFilter) => {
+    setCountry(c);
+    setCity('all');
+  };
   const [month, setMonth] = useState(''); // '' = ทุกเดือน, ไม่งั้นเป็น YYYY-MM
 
   useEffect(() => {
@@ -50,7 +56,7 @@ export function FeaturedTours() {
   const onMonthChange = (next: string) => {
     setMonth(next);
     // ประเทศที่เลือกไว้ไม่มีทัวร์ในเดือนใหม่ → กลับไปทุกประเทศ
-    if (country !== 'all' && !(tours ?? []).some((x) => x.country === country && inMonth(x, next))) setCountry('all');
+    if (country !== 'all' && !(tours ?? []).some((x) => x.country === country && inMonth(x, next))) chooseCountry('all');
   };
 
   // ประเทศที่มีโปรตอนนี้: ส่วนลดสูงสุด + จำนวนทัวร์ที่ลด เรียงจากลดมากไปน้อย
@@ -66,8 +72,6 @@ export function FeaturedTours() {
   }, [tours]);
   const hotSet = new Set(hot.map(([c]) => c));
 
-  // เปลี่ยนประเทศ → ล้างตัวกรองเมือง
-  useEffect(() => setCity('all'), [country]);
 
   // ข้อมูลรายเมือง (ตามเมืองหลักของแต่ละทัวร์) ของประเทศที่เลือก: จำนวนทัวร์ ราคาเริ่มต้น และส่วนลดสูงสุด (เรียงจากลดมากไปน้อย)
   const cityStats = useMemo(() => {
@@ -96,13 +100,11 @@ export function FeaturedTours() {
 
   // ค้นหาได้ทั้งไทยและอังกฤษ ไม่ว่าหน้าเว็บจะแสดงภาษาไหนอยู่ และใช้ร่วมกับตัวกรองประเทศ + เดือน
   const visible = useMemo(() => {
-    const q = query.toLowerCase().trim();
     return (tours ?? []).filter((x) => {
       if (country !== 'all' && x.country !== country) return false;
       if (city !== 'all' && x.cities?.[0] !== city) return false;
       if (!inMonth(x, month)) return false;
-      const c = findCountry(x.country);
-      return [x.title.en, x.title.th, x.route.en, x.route.th, c.name.en, c.name.th, x.keywords, x.category, x.code].join(' ').toLowerCase().includes(q);
+      return tourMatches(x, query);
     });
   }, [tours, query, country, city, month]);
 
@@ -129,15 +131,16 @@ export function FeaturedTours() {
       </Reveal>
 
       <div className="tbar">
-        <input
-          id="tour-search"
-          className="q"
-          aria-label={t('featured.searchLabel')}
-          placeholder={t('featured.searchPlaceholder')}
+        <SearchBox
+          tours={tours}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onSearch={setQuery}
+          onPickCountry={(c) => chooseCountry(c)}
+          onPickCity={(c, k) => {
+            chooseCountry(c);
+            setCity(k);
+          }}
         />
-       
         <label className="mq">
           <span aria-hidden="true">📅</span>
           <select aria-label={t('featured.monthLabel')} value={month} disabled={!tours} onChange={(e) => onMonthChange(e.target.value)}>
@@ -151,9 +154,18 @@ export function FeaturedTours() {
         </label>
       </div>
 
+      {query && (
+        <p className="sx-active">
+          ⌕ {t('search.resultsFor', { q: query })}
+          <button type="button" onClick={() => setQuery('')}>
+            × {t('search.clear')}
+          </button>
+        </p>
+      )}
+
   
       <div className="chips countries" role="group" aria-label={t('featured.countries')}>
-        <button type="button" className={`chip${country === 'all' ? ' on' : ''}`} aria-pressed={country === 'all'} onClick={() => setCountry('all')}>
+        <button type="button" className={`chip${country === 'all' ? ' on' : ''}`} aria-pressed={country === 'all'} onClick={() => chooseCountry('all')}>
           🌏 {t('country.all')}
           {tours && <i>{month ? monthTotal : tours.length}</i>}
         </button>
@@ -163,7 +175,7 @@ export function FeaturedTours() {
             type="button"
             className={`chip${country === c.code ? ' on' : ''}`}
             aria-pressed={country === c.code}
-            onClick={() => setCountry(country === c.code ? 'all' : c.code)}
+            onClick={() => chooseCountry(country === c.code ? 'all' : c.code)}
           >
             <span aria-hidden="true">{c.flag}</span> {loc(c.name)}
             {tours && <i>{counts.get(c.code) ?? 0}</i>}

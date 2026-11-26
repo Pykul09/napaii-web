@@ -49,15 +49,15 @@ function navFromScroll(): NavKey {
 }
 
 /** เมนูที่ไฮไลต์: หน้าทัวร์ = Tours, หน้าแรก = ตามส่วนที่เลื่อนไปถึง (อัปเดตทั้งตอนคลิกและตอนเลื่อน) */
-function useActiveNav(): NavKey {
-  const [key, setKey] = useState<NavKey>(() => navFromHash(window.location.hash));
+function useActiveNav(): NavKey | null {
+  const [key, setKey] = useState<NavKey | null>(() => (window.location.hash === '#/profile' ? null : navFromHash(window.location.hash)));
   useEffect(() => {
     let frame = 0;
     const update = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const hash = window.location.hash;
-        setKey(hash.startsWith('#/tours/') ? 'tours' : navFromScroll());
+        setKey(hash.startsWith('#/tours/') ? 'tours' : hash === '#/profile' ? null : navFromScroll());
       });
     };
     update();

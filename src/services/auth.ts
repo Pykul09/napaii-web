@@ -13,6 +13,15 @@ export interface SignInInput {
   email: string;
   password: string;
 }
+/** ข้อมูลที่แก้ได้ในหน้าโปรไฟล์ (อีเมลแก้ไม่ได้ — มาจากบัญชี/ผู้ให้บริการ login) */
+export interface ProfileUpdate {
+  firstName: string;
+  lastName: string;
+  /** YYYY-MM-DD หรือ '' = ไม่ระบุ */
+  birthDate: string;
+  /** '' = ไม่ระบุ */
+  phone: string;
+}
 
 /** รหัสข้อผิดพลาด — UI แปลเป็นข้อความตามภาษาผ่าน key `auth.err.<CODE>` */
 export type AuthErrorCode = 'EMAIL_TAKEN' | 'BAD_CREDENTIALS';
@@ -35,6 +44,8 @@ export interface AuthService {
   signUp(input: SignUpInput): Promise<User>;
   signIn(input: SignInInput): Promise<User>;
   social(provider: SocialProvider): Promise<User>;
+  /** แก้ข้อมูลโปรไฟล์ของผู้ใช้ที่ล็อกอินอยู่ (ทั้งบัญชีอีเมลและบัญชีที่ล็อกอินผ่าน Apple/Google/Facebook) */
+  updateProfile(input: ProfileUpdate): Promise<User>;
   signOut(): void;
 }
 
@@ -47,6 +58,13 @@ interface StoredAccount {
 
 const USERS_KEY = 'napaii_users';
 const SESSION_KEY = 'napaii_session';
+/** โปรไฟล์ของบัญชี social (key = provider:email) — เก็บไว้ให้ล็อกอินครั้งหน้าข้อมูลยังอยู่ */
+const SOCIAL_KEY = 'napaii_social_profiles';
+
+interface StoredSocial {
+  name: string;
+  profile?: Profile;
+}
 
 async function hashPassword(password: string, salt: string): Promise<string> {
   const data = new TextEncoder().encode(salt + password);
@@ -111,7 +129,33 @@ class LocalDemoAuthService implements AuthService {
    */
   async social(provider: SocialProvider): Promise<User> {
     await sleep(1100);
-    return this.start({ name: 'Demo User', email: `demo.${provider}@example.com`, provider });
+    const email = `demo.${provider}@example.com`;
+    // ข้อมูลที่ผู้ใช้เคยกรอกในหน้าโปรไฟล์ (ของจริง: backend เก็บคู่กับบัญชี Apple/Google/Facebook)
+    const saved = storage.get<Record<string, StoredSocial>>(SOCIAL_KEY, {})[`${provider}:${email}`];
+    return this.start({ name: saved?.name ?? 'Demo User', email, provider, profile: saved?.profile });
+  }
+
+  async updateProfile({ firstName, lastName, birthDate, phone }: ProfileUpdate): Promise<User> {
+    await sleep(600);
+    const current = this.getSession();
+    if (!current) throw new AuthError('BAD_CREDENTIALS');
+    const name = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ');
+    const profile: Profile = { ...current.profile, birthDate, phone, gender: current.profile?.gender ?? 'undisclosed' };
+    const next: User = { ...current, name, profile };
+
+    if (current.provider === 'email') {
+      const accounts = this.accounts();
+      const acc = accounts[current.email];
+      if (acc) {
+        accounts[current.email] = { ...acc, name, profile };
+        storage.set(USERS_KEY, accounts);
+      }
+    } else {
+      const all = storage.get<Record<string, StoredSocial>>(SOCIAL_KEY, {});
+      all[`${current.provider}:${current.email}`] = { name, profile };
+      storage.set(SOCIAL_KEY, all);
+    }
+    return this.start(next);
   }
 
   signOut(): void {
